@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="拾光：校园失物招领课程项目，浏览、发布和搜索寻物与招领信息。">
+  <title>拾光｜校园失物招领</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/core.js" defer></script>
+  <script src="js/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#app">跳转到主要内容</a>
+  <div class="site-shell">
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="#/home" aria-label="拾光，返回首页">
+          <span class="brand-mark" aria-hidden="true">拾</span>
+          <span class="brand-copy"><strong>拾光</strong><small>校园失物招领</small></span>
+        </a>
+        <nav class="desktop-nav" aria-label="主导航">
+          <a data-nav="home" href="#/home">首页</a>
+          <a data-nav="search" href="#/search">发现信息</a>
+          <a data-nav="publish" href="#/publish">发布信息</a>
+          <a data-nav="mine" href="#/mine">我的发布</a>
+        </nav>
+        <a class="header-cta" href="#/publish"><span aria-hidden="true">＋</span> 发布信息</a>
+      </div>
+    </header>
+
+    <main id="app" class="main-content" tabindex="-1" aria-live="polite"></main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <span><strong>拾光</strong> · 让每件遗失的物品，都有回家的线索。</span>
+        <span>课程演示版 · 信息保存在当前浏览器</span>
+      </div>
+    </footer>
+  </div>
+
+  <nav class="mobile-nav" aria-label="移动端主导航">
+    <a data-nav="home" href="#/home"><span aria-hidden="true">⌂</span>首页</a>
+    <a data-nav="search" href="#/search"><span aria-hidden="true">⌕</span>发现</a>
+    <a data-nav="publish" href="#/publish"><span aria-hidden="true">＋</span>发布</a>
+    <a data-nav="mine" href="#/mine"><span aria-hidden="true">▣</span>我的</a>
+  </nav>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
