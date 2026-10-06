@@ -7,9 +7,13 @@ const path = require("node:path");
 const vm = require("node:vm");
 const core = require("../js/core.js");
 
-const source = fs.readFileSync(path.join(__dirname, "../js/app.js"), "utf8");
+const html = fs.readFileSync(path.join(__dirname, "../index.html"), "utf8");
+const scripts = Array.from(html.matchAll(/<script src="([^"]+)" defer><\/script>/g), match => ({
+  filename: match[1],
+  source: fs.readFileSync(path.join(__dirname, "..", match[1]), "utf8")
+}));
 
-function startApp(initialHash = "#/home", store = new Map(), coreOverride = core) {
+function startApp(initialHash = "#/home", store = new Map(), coreOverride = null) {
   const events = {};
   const windowEvents = {};
   const app = { innerHTML: "" };
@@ -60,7 +64,13 @@ function startApp(initialHash = "#/home", store = new Map(), coreOverride = core
     HTMLElement: MockElement, FormData: MockFormData, URLSearchParams,
     setTimeout: () => 1, clearTimeout() {}, console
   };
-  vm.runInNewContext(source, context, { filename: "app.js" });
+  Object.assign(context, context.window);
+  context.window = context;
+  const sandbox = vm.createContext(context);
+  for (const script of scripts) {
+    vm.runInContext(script.source, sandbox, { filename: script.filename });
+    if (script.filename === "js/core.js" && coreOverride) sandbox.ShiguangCore = coreOverride;
+  }
   return { app, toast, context, events, windowEvents, store, MockForm, MockButton, rerender: () => windowEvents.hashchange() };
 }
 
