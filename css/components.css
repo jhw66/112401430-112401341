@@ -1,0 +1,254 @@
+/* 公共标题、搜索控件、面板、空状态与按钮 */
+
+/* ===== 标题装饰 ===== */
+
+.eyebrow {
+  color: var(--blue);
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .16em;
+}
+
+.eyebrow-line {
+  width: 17px;
+  height: 2px;
+  background: var(--blue);
+  border-radius: 2px;
+}
+
+.section-eyebrow {
+  margin-bottom: 12px;
+}
+
+/* ===== 共用搜索控件 ===== */
+
+.hero-search > span,
+.search-input-wrap > span {
+  color: var(--blue);
+  font-size: 23px;
+  line-height: 1;
+}
+
+.hero-search input,
+.search-input-wrap input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.hero-search input::placeholder,
+.search-input-wrap input::placeholder {
+  color: #a0aec2;
+}
+
+.hero-search button,
+.search-input-wrap button {
+  border: 0;
+  background: var(--blue);
+  color: white;
+  border-radius: 9px;
+  padding: 12px 20px;
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.hero-search button:hover,
+.search-input-wrap button:hover {
+  background: var(--blue-dark);
+}
+
+/* ===== 文字链接 ===== */
+
+.text-link {
+  font-size: 13px;
+  color: var(--blue);
+  font-weight: 750;
+}
+
+.text-link:hover,
+.section-more:hover,
+.detail-back a:hover {
+  text-decoration: underline;
+}
+
+/* ===== 内容分区与标题 ===== */
+
+.content-section {
+  margin-top: 48px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.section-heading h2 {
+  margin: 0;
+  font-size: 27px;
+  letter-spacing: -.03em;
+}
+
+.section-heading p {
+  margin: 9px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.section-more {
+  color: var(--blue);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  padding-bottom: 5px;
+}
+
+.section-more span {
+  margin-left: 5px;
+}
+
+/* ===== 页面简介 ===== */
+
+.page-intro {
+  margin: 25px 0 28px;
+}
+
+.page-intro h1 {
+  margin: 0;
+  font-size: clamp(27px, 3vw, 36px);
+  letter-spacing: -.04em;
+}
+
+.page-intro p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 12px 0 0;
+}
+
+/* ===== 面板外观 ===== */
+
+.search-panel,
+.form-panel,
+.detail-main,
+.contact-card,
+.privacy-card,
+.aside-card,
+.aside-steps,
+.mine-row,
+.success-panel {
+  background: white;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  border-radius: 18px;
+}
+
+/* ===== 空状态 ===== */
+
+.empty-state {
+  text-align: center;
+  padding: 68px 20px;
+  background: #fff;
+  border: 1px dashed #cddbef;
+  border-radius: 18px;
+}
+
+.empty-state > span {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: #edf4ff;
+  color: var(--blue);
+  font-size: 37px;
+  margin: 0 auto 19px;
+}
+
+.empty-state h2,
+.empty-state h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.empty-state p {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 21px;
+}
+
+.standalone-empty {
+  margin-top: 30px;
+}
+
+/* ===== 长文本处理 ===== */
+
+.detail-heading-copy,
+.mine-row-main > div {
+  min-width: 0;
+}
+
+.item-card h3,
+.detail-heading h1,
+.detail-facts dd,
+.mine-row h2,
+.mine-row p {
+  overflow-wrap: anywhere;
+}
+
+/* ===== 操作按钮 ===== */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 10px;
+  padding: 11px 18px;
+  min-height: 42px;
+  border: 1px solid transparent;
+  font-size: 14px;
+  font-weight: 750;
+  text-align: center;
+  transition: transform .18s, background .18s, border-color .18s;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+}
+
+.button-primary {
+  background: var(--blue);
+  color: #fff;
+  box-shadow: 0 7px 16px #2466dd22;
+}
+
+.button-secondary {
+  color: var(--blue);
+  background: #edf4ff;
+  border-color: #d5e5fa;
+}
+
+.button-secondary:hover {
+  background: #e2efff;
+}
+
+.button-quiet {
+  background: #fff;
+  color: #697891;
+  border-color: #e0e7f0;
+}
+
+.button-quiet:hover {
+  background: #f7f9fc;
+}
