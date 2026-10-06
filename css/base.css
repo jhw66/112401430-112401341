@@ -1,0 +1,83 @@
+/* 主题变量、基础元素与无障碍 */
+
+/* ===== 主题变量与全局字体 ===== */
+
+:root {
+  color-scheme: light;
+  --ink: #17233e;
+  --muted: #68758e;
+  --line: #e3eaf3;
+  --blue: #2466dd;
+  --blue-dark: #174eb7;
+  --blue-pale: #eaf2ff;
+  --bg: #f7f9fd;
+  --shadow: 0 14px 40px rgba(34, 62, 112, .07);
+  font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== 基础元素 ===== */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ===== 键盘焦点与辅助阅读 ===== */
+
+:focus-visible {
+  outline: 3px solid #eea73d;
+  outline-offset: 3px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: fixed;
+  left: 16px;
+  top: -80px;
+  z-index: 100;
+  padding: 10px 16px;
+  background: #fff;
+  border-radius: 9px;
+  box-shadow: var(--shadow);
+}
+
+.skip-link:focus {
+  top: 12px;
+}

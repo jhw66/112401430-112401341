@@ -1,0 +1,211 @@
+/* 信息详情：物品信息、状态操作与联系方式 */
+
+/* ===== 返回入口与页面布局 ===== */
+
+.detail-back {
+  margin: 20px 0;
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 20px;
+  align-items: start;
+}
+
+.detail-main {
+  padding: 30px 32px;
+}
+
+/* ===== 物品标题 ===== */
+
+.detail-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 19px;
+}
+
+.detail-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 66px;
+  height: 66px;
+  border-radius: 17px;
+  background: #e8f1ff;
+  color: var(--blue);
+  font-size: 33px;
+}
+
+.detail-pills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+}
+
+.detail-heading h1 {
+  font-size: 29px;
+  margin: 10px 0 7px;
+}
+
+.detail-heading p {
+  color: #8996a8;
+  font-size: 11px;
+  margin: 0;
+}
+
+.detail-divider {
+  height: 1px;
+  background: var(--line);
+  margin: 27px 0 24px;
+}
+
+.detail-main h2 {
+  font-size: 17px;
+  margin: 0 0 18px;
+}
+
+/* ===== 物品属性 ===== */
+
+.detail-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 17px;
+  margin: 0;
+}
+
+.detail-facts div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detail-facts dt {
+  color: #8c99aa;
+  font-size: 11px;
+}
+
+.detail-facts dd {
+  font-size: 13px;
+  margin: 0;
+  font-weight: 650;
+}
+
+/* ===== 详细描述 ===== */
+
+.detail-description {
+  border-top: 1px solid var(--line);
+  margin-top: 26px;
+  padding-top: 25px;
+}
+
+.detail-description p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  line-height: 1.9;
+  color: #53627b;
+  margin: 0;
+}
+
+/* ===== 发布者状态操作 ===== */
+
+.owner-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  background: #f3f8ff;
+  border: 1px solid #dbeafe;
+  border-radius: 12px;
+  margin-top: 30px;
+  padding: 18px;
+}
+
+.owner-action strong {
+  font-size: 12px;
+}
+
+.owner-action p {
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 6px 0 0;
+}
+
+.owner-action .button {
+  flex: none;
+}
+
+/* ===== 联系侧栏 ===== */
+
+.detail-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contact-card {
+  padding: 25px;
+}
+
+.contact-card h2 {
+  font-size: 20px;
+  line-height: 1.4;
+  margin: 12px 0 6px;
+}
+
+.contact-card p {
+  color: var(--muted);
+  line-height: 1.7;
+  font-size: 12px;
+  margin: 0;
+}
+
+.contact-value {
+  overflow-wrap: anywhere;
+  background: #f4f7fb;
+  border: 1px dashed #cedbeb;
+  padding: 14px;
+  border-radius: 10px;
+  margin: 19px 0 13px;
+  color: #315280;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.copy-button {
+  width: 100%;
+}
+
+.contact-card small {
+  display: block;
+  color: #9a7a55;
+  line-height: 1.6;
+  margin-top: 12px;
+  font-size: 10px;
+}
+
+/* ===== 安全提醒 ===== */
+
+.privacy-card {
+  background: #fffaf2;
+  border-color: #f5e9d4;
+  padding: 19px 22px;
+}
+
+.privacy-card strong {
+  color: #9a6731;
+  font-size: 12px;
+}
+
+.privacy-card p {
+  font-size: 11px;
+  line-height: 1.8;
+  color: #9f896d;
+  margin: 6px 0 0;
+}

@@ -1,0 +1,74 @@
+/* 发现信息：搜索面板、筛选与结果 */
+
+/* ===== 搜索面板 ===== */
+
+.search-panel {
+  padding: 20px 23px;
+}
+
+.search-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  height: 50px;
+  padding-left: 15px;
+  border-radius: 11px;
+  border: 1px solid #dce5f1;
+}
+
+.search-input-wrap:focus-within {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px #2466dd13;
+}
+
+.search-input-wrap button {
+  height: 42px;
+  margin-right: 4px;
+}
+
+/* ===== 筛选控件 ===== */
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.filter-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 156px;
+  font-size: 13px;
+  color: #68758e;
+}
+
+.filter-row select {
+  height: 42px;
+  min-width: 150px;
+  padding: 0 28px 0 11px;
+  background: #fafcff;
+  border: 1px solid #e1e8f2;
+  border-radius: 9px;
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.filter-reset {
+  margin-left: auto;
+  color: var(--blue);
+  font-size: 12px;
+  padding: 10px 4px;
+}
+
+/* ===== 搜索结果 ===== */
+
+.results-section {
+  margin-top: 34px;
+}
+
+.results-section .section-heading h2 {
+  font-size: 23px;
+}
