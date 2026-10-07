@@ -7,7 +7,25 @@
   <meta name="description" content="拾光：校园失物招领课程项目，浏览、发布和搜索寻物与招领信息。">
   <title>拾光｜校园失物招领</title>
   <link rel="stylesheet" href="css/styles.css">
+  <!-- 依赖顺序：业务模块 → 业务入口 → 应用工具 → 页面 → 事件 → 启动入口。 -->
+  <script src="js/core/constants.js" defer></script>
+  <script src="js/core/utils.js" defer></script>
+  <script src="js/core/validation.js" defer></script>
+  <script src="js/core/records.js" defer></script>
+  <script src="js/core/cache.js" defer></script>
+  <script src="js/core/queries.js" defer></script>
+  <script src="js/core/samples.js" defer></script>
   <script src="js/core.js" defer></script>
+  <script src="js/app/store.js" defer></script>
+  <script src="js/app/router.js" defer></script>
+  <script src="js/app/ui.js" defer></script>
+  <script src="js/pages/home.js" defer></script>
+  <script src="js/pages/search.js" defer></script>
+  <script src="js/pages/publish.js" defer></script>
+  <script src="js/pages/detail.js" defer></script>
+  <script src="js/pages/success.js" defer></script>
+  <script src="js/pages/mine.js" defer></script>
+  <script src="js/app/events.js" defer></script>
   <script src="js/app.js" defer></script>
 </head>
 <body>

@@ -32,10 +32,14 @@
 .
 ├─ index.html                 网页入口与全局导航
 ├─ css/
-│  └─ styles.css             页面布局、响应式样式与交互状态
+│  ├─ styles.css             样式加载入口
+│  └─ *.css                  按基础、组件、页面及响应式拆分的样式
 ├─ js/
-│  ├─ core.js                数据模型、表单校验、搜索、状态更新等纯逻辑
-│  └─ app.js                 页面渲染、路由、表单事件与本地存储
+│  ├─ core.js                业务逻辑统一接口（浏览器和 Node.js 共用）
+│  ├─ core/                  常量、工具、校验、记录、缓存解析、查询、示例数据
+│  ├─ app.js                 应用启动、页面调度与导航更新
+│  ├─ app/                   状态存储、路由、公共界面工具、事件绑定
+│  └─ pages/                 首页、搜索、发布、详情、成功、我的发布
 ├─ tests/
 │  ├─ core.test.js           核心逻辑单元测试
 │  └─ app-smoke.test.js      页面路由与主流程烟雾测试
@@ -44,6 +48,16 @@
 ├─ evidence/2026-09-30/      实际页面走查截图
 └─ README.md                 本文档
 ```
+
+## JavaScript 维护入口
+
+- 修改字段规则：查看 `js/core/validation.js`；记录创建和状态变更在 `js/core/records.js`。
+- 修改搜索、排序和统计：查看 `js/core/queries.js`；URL 参数和详情返回在 `js/app/router.js`。
+- 修改本地保存和草稿：查看 `js/app/store.js`；原有存储键与损坏缓存备份机制继续保留。
+- 修改页面内容：进入 `js/pages/` 中对应的页面文件；卡片、标签和表单控件共用 `js/app/ui.js`。
+- 修改交互：查看 `js/app/events.js`；应用组装和首次渲染在 `js/app.js`。
+
+浏览器通过 `index.html` 中的普通 `defer` 脚本按依赖顺序加载，继续支持直接双击打开 HTML，无需构建工具。新增模块时，要把脚本放在依赖模块之后、使用模块之前。业务模块也支持 CommonJS，Node.js 仍可通过 `require("./js/core.js")` 使用统一接口。页面烟雾测试读取 HTML 中的真实脚本清单，验证浏览器模块导出与加载顺序。
 
 ## 运行测试
 

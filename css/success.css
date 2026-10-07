@@ -1,0 +1,42 @@
+/* 发布成功：反馈与后续操作 */
+
+.success-panel {
+  max-width: 680px;
+  margin: 62px auto;
+  padding: 56px 45px;
+  text-align: center;
+}
+
+.success-icon {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 25px;
+  background: #e3f7ec;
+  color: #2d9a66;
+  font-size: 36px;
+  font-weight: 800;
+}
+
+.success-panel h1 {
+  font-size: 28px;
+  margin: 4px 0 12px;
+}
+
+.success-panel > p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.9;
+  max-width: 480px;
+  margin: 0 auto 25px;
+}
+
+.success-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 23px;
+}

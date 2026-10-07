@@ -1,0 +1,260 @@
+/* 发布信息：表单、校验、草稿与侧栏 */
+
+/* ===== 页面布局与表单标题 ===== */
+
+.publish-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 275px;
+  gap: 20px;
+  align-items: start;
+}
+
+.form-panel {
+  padding: 29px 32px 34px;
+}
+
+.panel-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 23px;
+  border-bottom: 1px solid var(--line);
+}
+
+.panel-index {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  color: var(--blue);
+  background: #e8f1ff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.panel-heading h2 {
+  font-size: 18px;
+  margin: 0 0 4px;
+}
+
+.panel-heading p {
+  color: #8793a4;
+  font-size: 11px;
+  margin: 0;
+}
+
+/* ===== 必填标记与类型选择 ===== */
+
+.required {
+  color: #dd654e;
+}
+
+.type-fieldset {
+  border: 0;
+  padding: 0;
+  margin: 26px 0 22px;
+}
+
+.type-fieldset legend,
+.form-field label {
+  color: #35445c;
+  font-weight: 750;
+  font-size: 14px;
+  margin-bottom: 9px;
+}
+
+.type-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 11px;
+}
+
+.type-switch label {
+  cursor: pointer;
+  position: relative;
+}
+
+.type-switch input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.type-switch label span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 13px 16px;
+  border: 1px solid #dfe6f1;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.type-switch input:checked + span {
+  background: #ecf4ff;
+  border-color: #5d94ea;
+  box-shadow: inset 0 0 0 1px #5d94ea;
+}
+
+.type-switch input:focus-visible + span {
+  outline: 3px solid #eea73d;
+  outline-offset: 3px;
+}
+
+.type-switch strong {
+  font-size: 13px;
+}
+
+.type-switch small {
+  font-size: 10px;
+  color: #8793a4;
+}
+
+/* ===== 字段布局与校验提示 ===== */
+
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 16px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+  width: 100%;
+  border: 1px solid #dfe6f0;
+  border-radius: 9px;
+  padding: 11px 12px;
+  background: #fbfcfe;
+  color: var(--ink);
+  outline: none;
+  font-size: 14px;
+}
+
+.form-field input,
+.form-field select {
+  height: 42px;
+}
+
+.form-field textarea {
+  resize: vertical;
+  min-height: 105px;
+  line-height: 1.65;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+  background: #fff;
+  border-color: #6a9dec;
+  box-shadow: 0 0 0 3px #2466dd12;
+}
+
+.form-field input[aria-invalid="true"],
+.form-field select[aria-invalid="true"],
+.form-field textarea[aria-invalid="true"] {
+  border-color: #dd654e;
+}
+
+.form-field input::placeholder,
+.form-field textarea::placeholder {
+  color: #8895a8;
+}
+
+.field-hint {
+  margin-top: 6px;
+  color: #68758e;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.field-error {
+  color: #c4493e;
+  font-size: 12px;
+  margin-top: 5px;
+  min-height: 0;
+}
+
+/* ===== 提交操作与草稿 ===== */
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.draft-status {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+  margin: 0 0 12px;
+}
+
+/* ===== 侧栏提示与步骤 ===== */
+
+.publish-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+}
+
+.aside-card,
+.aside-steps {
+  padding: 24px;
+}
+
+.aside-card {
+  background: #eaf2ff;
+  border-color: #dfebff;
+}
+
+.aside-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--blue);
+  font-size: 25px;
+}
+
+.aside-card h3,
+.aside-steps h3 {
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 17px 0 8px;
+}
+
+.aside-card p,
+.aside-steps li {
+  color: var(--muted);
+  line-height: 1.8;
+  font-size: 11px;
+}
+
+.aside-card p {
+  margin: 0;
+}
+
+.aside-steps h3 {
+  margin-top: 0;
+}
+
+.aside-steps ol {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.aside-steps li + li {
+  margin-top: 7px;
+}

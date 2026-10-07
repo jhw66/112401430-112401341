@@ -1,0 +1,175 @@
+/* 网站框架、品牌与导航 */
+
+/* ===== 整体布局 ===== */
+
+.site-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.site-header {
+  background: rgba(255, 255, 255, .96);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(14px);
+}
+
+.header-inner,
+.main-content,
+.footer-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.header-inner {
+  min-height: 78px;
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  gap: 48px;
+}
+
+/* ===== 品牌 ===== */
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  flex: none;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 13px;
+  color: white;
+  background: linear-gradient(140deg, #347df2, #1555c5);
+  font-size: 23px;
+  font-weight: 800;
+  box-shadow: 0 8px 18px #2466dd30;
+}
+
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.brand-copy strong {
+  font-size: 19px;
+  letter-spacing: .08em;
+}
+
+.brand-copy small {
+  margin-top: 4px;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: .07em;
+}
+
+/* ===== 桌面导航 ===== */
+
+.desktop-nav {
+  display: flex;
+  align-items: center;
+  height: 78px;
+  gap: 7px;
+}
+
+.desktop-nav a {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: 0 18px;
+  font-size: 14px;
+  color: #586781;
+  position: relative;
+  transition: color .18s;
+}
+
+.desktop-nav a:hover,
+.desktop-nav a[aria-current="page"] {
+  color: var(--blue);
+}
+
+.desktop-nav a[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  bottom: 0;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: var(--blue);
+}
+
+/* ===== 发布入口 ===== */
+
+.header-cta {
+  margin-left: auto;
+  white-space: nowrap;
+  padding: 11px 18px;
+  border-radius: 11px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 6px 15px #2466dd2a;
+  transition: transform .18s, background .18s;
+}
+
+.header-cta:hover,
+.button-primary:hover {
+  background: var(--blue-dark);
+  transform: translateY(-2px);
+}
+
+.header-cta span {
+  font-size: 19px;
+  vertical-align: -1px;
+  margin-right: 4px;
+  font-weight: 400;
+}
+
+.main-content {
+  flex: 1;
+  padding: 30px 28px 82px;
+}
+
+.main-content:focus {
+  outline: none;
+}
+
+/* ===== 页脚 ===== */
+
+.site-footer {
+  background: #fff;
+  border-top: 1px solid var(--line);
+}
+
+.footer-inner {
+  min-height: 78px;
+  padding: 18px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  color: #8793a6;
+  font-size: 12px;
+}
+
+.footer-inner strong {
+  color: var(--blue);
+}
+
+/* ===== 移动导航基础状态 ===== */
+
+.mobile-nav {
+  display: none;
+}
