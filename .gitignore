@@ -4,3 +4,8 @@ Thumbs.db
 *.log
 .evidence/
 QA*
+
+# Local folder responsibility and structure guides
+/css/README.md
+/js/README.md
+/tests/README.md
