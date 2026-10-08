@@ -11,6 +11,7 @@
       const data = new FormData(form);
       return {
         keyword: String(data.get("keyword") || ""),
+        place: String(data.get("place") || ""),
         type: String(data.get("type") || "all"),
         category: String(data.get("category") || "all"),
         status: String(data.get("status") || "all")

@@ -11,11 +11,13 @@
     function renderSearch(params) {
       const filters = searchFilters(params);
       const results = core.filterRecords(store.allRecords(), filters);
-      return `${warningHtml()}<section class="page-intro"><span class="eyebrow section-eyebrow">发现信息</span><h1>寻找你关心的线索</h1><p>搜索物品名称，也可按类型、类别和状态筛选。</p></section>
+      return `${warningHtml()}<section class="page-intro"><span class="eyebrow section-eyebrow">发现信息</span><h1>寻找你关心的线索</h1><p>搜索物品名称，也可按地点、类型、类别和状态筛选。</p></section>
         <section class="search-panel" aria-label="搜索和筛选">
           <form data-form="search" role="search">
             <div class="search-input-wrap"><label class="sr-only" for="search-keyword">关键词</label><span aria-hidden="true">⌕</span><input id="search-keyword" name="keyword" type="search" maxlength="60" placeholder="例如：校园卡、图书馆、雨伞" value="${escapeHtml(filters.keyword)}"><button type="submit">搜索</button></div>
-            <div class="filter-row"><label>信息类型<select name="type">${option("all", "全部类型", filters.type)}${option("lost", "寻物", filters.type)}${option("found", "招领", filters.type)}</select></label>
+            <div class="filter-row">
+              <label for="search-place">地点关键词<input id="search-place" name="place" type="text" maxlength="60" placeholder="例如：图书馆、教学楼" value="${escapeHtml(filters.place)}"></label>
+              <label>信息类型<select name="type">${option("all", "全部类型", filters.type)}${option("lost", "寻物", filters.type)}${option("found", "招领", filters.type)}</select></label>
               <label>物品类别<select name="category">${option("all", "全部类别", filters.category)}${core.CATEGORIES.map(category => option(category, category, filters.category)).join("")}</select></label>
               <label>信息状态<select name="status">${option("all", "全部状态", filters.status)}${option("open", "进行中", filters.status)}${option("closed", "已结束", filters.status)}</select></label>
               <a href="#/search" class="filter-reset">清除筛选</a></div>

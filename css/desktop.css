@@ -1,0 +1,38 @@
+/* 电脑端窗口布局 */
+
+/* ===== 紧凑桌面：宽度不超过 1050px ===== */
+
+@media (max-width: 1050px) {
+  /* ===== 页头与导航 ===== */
+
+  .header-inner {
+    gap: 22px;
+  }
+
+  .desktop-nav a {
+    padding: 0 12px;
+  }
+
+  /* ===== 首页主视觉 ===== */
+
+  .hero-copy {
+    padding-left: 38px;
+  }
+
+  .art-card-main {
+    right: 25px;
+  }
+
+  .art-card-side {
+    right: 4px;
+  }
+
+  .orbit-one {
+    right: 0;
+  }
+
+  .orbit-two {
+    right: 50px;
+  }
+
+}
