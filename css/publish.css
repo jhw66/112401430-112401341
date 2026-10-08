@@ -282,3 +282,26 @@
 .aside-steps li + li {
   margin-top: 7px;
 }
+
+/* ===== 发布数量提示 ===== */
+
+.publish-capacity {
+  margin: 0 0 20px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #edf4ff;
+  color: #44648f;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.publish-capacity-full {
+  background: #fff3e7;
+  color: #95602d;
+}
+
+.form-actions button:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+  box-shadow: none;
+}

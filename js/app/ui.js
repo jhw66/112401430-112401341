@@ -45,10 +45,20 @@
       return `<span class="status-pill status-${status}"><span class="status-dot" aria-hidden="true"></span>${core.STATUS_LABELS[item.type][status]}</span>`;
     }
 
+    function itemVisual(item, detail = false) {
+      const className = detail ? "detail-icon" : "item-icon";
+      if (item.owner === "local" && Number.isInteger(item.imageNumber) && item.imageNumber >= 1 && item.imageNumber <= core.MAX_LOCAL_RECORDS) {
+        const number = item.imageNumber;
+        const filename = String(number).padStart(2, "0");
+        return `<span class="${className} item-image" data-image-number="${number}"><img src="assets/images/post-${filename}.png" alt="配图 ${number}，装饰角色，并非物品实拍" width="64" height="64"><span class="image-number" aria-hidden="true">${number}</span></span>`;
+      }
+      return `<span class="${className}" aria-hidden="true">${icons[item.category] || "✦"}</span>`;
+    }
+
     function itemCard(item, returnTo = "/search") {
       const href = `#${detailPath(item.id, returnTo)}`;
       return `<a class="item-card ${item.status === "closed" ? "item-card-closed" : ""}" href="${href}" aria-label="查看${escapeHtml(item.title)}详情">
-        <div class="card-top"><span class="item-icon" aria-hidden="true">${icons[item.category] || "✦"}</span>${typePill(item)}${statusPill(item)}</div>
+        <div class="card-top">${itemVisual(item)}${typePill(item)}${statusPill(item)}</div>
         <h3>${escapeHtml(item.title)}</h3>
         <p class="card-description">${escapeHtml(item.description)}</p>
         <div class="card-meta"><span>⌖ ${escapeHtml(item.place)}</span><span>◷ ${dateLabel(item.date)}</span></div>
@@ -82,6 +92,6 @@
       if (target && typeof target.focus === "function") target.focus();
     }
 
-    return { icons, escapeHtml, showToast, dateLabel, publishedDateLabel, typePill, statusPill, itemCard, warningHtml, option, formField, showFormErrors };
+    return { icons, escapeHtml, showToast, dateLabel, publishedDateLabel, typePill, statusPill, itemVisual, itemCard, warningHtml, option, formField, showFormErrors };
   };
 })(window);

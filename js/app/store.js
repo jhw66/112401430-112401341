@@ -73,7 +73,14 @@
     }
 
     function addRecord(item) {
-      localRecords = [item, ...localRecords];
+      // 发布前读取其他标签页保存的记录；存储失败时保留当前内存记录。
+      if (!storageWarning) {
+        try {
+          const parsed = core.parseLocalRecords(localStorage.getItem(storageKey));
+          if (!parsed.invalid) localRecords = parsed.records;
+        } catch { /* 继续使用当前页面的内存记录。 */ }
+      }
+      localRecords = core.addLocalRecord(localRecords, item);
     }
 
     function updateStatus(id, reopening) {
@@ -86,6 +93,7 @@
       allRecords, saveLocalRecords, persistPublishDraft, clearPublishDraft,
       addRecord, updateStatus,
       get localRecords() { return localRecords; },
+      get publicationLimitReached() { return localRecords.length >= core.MAX_LOCAL_RECORDS; },
       get pendingDraft() { return pendingDraft; },
       get storageWarning() { return storageWarning; },
       get draftWarning() { return draftWarning; }

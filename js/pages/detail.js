@@ -5,7 +5,7 @@
   const modules = root.ShiguangAppModules || (root.ShiguangAppModules = {});
   modules.pages = modules.pages || {};
   modules.pages.detail = function ({ core, store, ui, router }) {
-    const { warningHtml, escapeHtml, icons, typePill, statusPill, dateLabel, publishedDateLabel } = ui;
+    const { warningHtml, escapeHtml, itemVisual, typePill, statusPill, dateLabel, publishedDateLabel } = ui;
     const { detailReturn } = router;
 
     function renderDetail(id, params = new URLSearchParams()) {
@@ -19,7 +19,7 @@
       const contactMethods = contacts.map(({ label, value }) =>
         `<div class="contact-method"><span class="contact-label">${label}</span><div class="contact-value">${escapeHtml(value)}</div><button class="button button-primary copy-button" type="button" data-action="copy" data-contact="${escapeHtml(value)}">复制${label}</button></div>`).join("");
       return `${warningHtml()}<div class="detail-back"><a href="#${escapeHtml(returnRoute.path)}"><span aria-hidden="true">←</span> ${returnRoute.label}</a></div><article class="detail-layout">
-        <section class="detail-main"><div class="detail-heading"><div class="detail-icon" aria-hidden="true">${icons[item.category] || "✦"}</div><div class="detail-heading-copy"><div class="detail-pills">${typePill(item)}${statusPill(item)}${item.owner === "sample" ? '<span class="sample-pill">演示信息</span>' : ""}</div><h1>${escapeHtml(item.title)}</h1><p>发布于 ${publishedDateLabel(item.createdAt)}</p></div></div>
+        <section class="detail-main"><div class="detail-heading">${itemVisual(item, true)}<div class="detail-heading-copy"><div class="detail-pills">${typePill(item)}${statusPill(item)}${item.owner === "sample" ? '<span class="sample-pill">演示信息</span>' : ""}</div><h1>${escapeHtml(item.title)}</h1><p>发布于 ${publishedDateLabel(item.createdAt)}${owned ? ` · 配图 ${item.imageNumber}（装饰角色）` : ""}</p></div></div>
           <div class="detail-divider"></div><h2>物品信息</h2><dl class="detail-facts"><div><dt>物品类别</dt><dd>${escapeHtml(item.category)}</dd></div><div><dt>${item.type === "lost" ? "遗失地点" : "拾取地点"}</dt><dd>${escapeHtml(item.place)}</dd></div><div><dt>${item.type === "lost" ? "遗失日期" : "拾取日期"}</dt><dd>${dateLabel(item.date)}</dd></div><div><dt>当前状态</dt><dd>${core.STATUS_LABELS[item.type][item.status]}</dd></div></dl>
           <div class="detail-description"><h2>详细描述</h2><p>${escapeHtml(item.description)}</p></div>
           ${owned ? `<div class="owner-action"><div><strong>${item.status === "open" ? `物品已经${item.type === "lost" ? "找到" : "归还"}了吗？` : "刚才标记错了吗？"}</strong><p>${item.status === "open" ? "结束后记录仍保留，联系方式会隐藏；误操作可撤销结束。" : "撤销后恢复为进行中，联系方式将重新显示。"}</p></div><button class="button button-secondary" type="button" data-action="${item.status === "open" ? "close" : "reopen"}" data-id="${escapeHtml(item.id)}">${item.status === "open" ? `标记为${item.type === "lost" ? "已找到" : "已归还"}` : "撤销结束"}</button></div>` : ""}

@@ -49,3 +49,24 @@ test("本地存储读取受限时仍可用地点筛选示例记录并展示存�
   assert.deepEqual(searchResultIds(harness.app), ["sample-card"]);
   assert.match(harness.app.innerHTML, /id="search-place"[^>]*value="图书馆"/);
 });
+
+test("写入失败时内存中的十条记录仍受上限保护，编号不会重用", () => {
+  const store = new Map();
+  store.set = () => { throw new Error("quota exceeded"); };
+  const harness = startApp("#/publish", store);
+  for (let number = 1; number <= 10; number += 1) {
+    harness.context.location.hash = "#/publish";
+    harness.rerender();
+    harness.events.submit({ target: new harness.MockForm("publish", { ...publishFields(), title: `内存线索${number}` }), preventDefault() {} });
+    assert.match(harness.context.location.hash, /^#\/success\//);
+  }
+  harness.context.location.hash = "#/mine";
+  harness.rerender();
+  assert.equal((harness.app.innerHTML.match(/class="mine-row"/g) || []).length, 10);
+  assert.deepEqual(Array.from(harness.app.innerHTML.matchAll(/data-image-number="(\d+)"/g), match => Number(match[1])).sort((a,b) => a-b), [1,2,3,4,5,6,7,8,9,10]);
+  harness.context.location.hash = "#/publish";
+  harness.rerender();
+  harness.events.submit({ target: new harness.MockForm("publish", publishFields()), preventDefault() {} });
+  assert.equal(harness.context.location.hash, "#/publish");
+  assert.match(harness.app.innerHTML, /type="submit"[^>]* disabled/);
+});

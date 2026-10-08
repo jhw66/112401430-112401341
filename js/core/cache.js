@@ -11,7 +11,7 @@
 
   const { CATEGORIES, TYPES } = constants;
   const { validCalendarDate } = utils;
-  const { isRecord } = records;
+  const { isRecord, assignRecordImages } = records;
 
   function parseLocalRecords(raw) {
     if (raw == null || raw === "") return { records: [], invalid: false };
@@ -25,7 +25,7 @@
         ids.add(item.id);
         return true;
       });
-      return { records: unique, invalid: unique.length !== data.length };
+      return { records: assignRecordImages(unique), invalid: unique.length !== data.length };
     } catch {
       return { records: [], invalid: true };
     }

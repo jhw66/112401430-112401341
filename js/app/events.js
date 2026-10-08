@@ -38,6 +38,11 @@
         return;
       }
       if (form.dataset.form !== "publish" || form.dataset.submitted === "true") return;
+      if (store.publicationLimitReached) {
+        persistPublishDraft(form);
+        showToast(`当前浏览器最多保留 ${core.MAX_LOCAL_RECORDS} 条个人线索，已结束的记录也计入数量。`, true);
+        return;
+      }
       const data = Object.fromEntries(new FormData(form).entries());
       const errors = core.validateDraft(data);
       if (Object.keys(errors).length) {
@@ -46,9 +51,17 @@
         showToast("请检查标红的必填信息。", true);
         return;
       }
-      const item = core.createRecord(data);
+      let item;
+      try {
+        item = core.createRecord(data);
+        store.addRecord(item);
+      } catch (error) {
+        persistPublishDraft(form);
+        if (error.code === "POST_LIMIT") render();
+        showToast(error.message || "发布失败，请稍后重试。", true);
+        return;
+      }
       form.dataset.submitted = "true";
-      store.addRecord(item);
       const saved = store.saveLocalRecords();
       store.clearPublishDraft();
       navigate(`/success/${encodeURIComponent(item.id)}`);

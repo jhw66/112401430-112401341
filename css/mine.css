@@ -49,6 +49,10 @@
   margin: 0;
 }
 
+.publication-count {
+  color: var(--blue);
+}
+
 /* ===== 管理操作 ===== */
 
 .mine-row-actions {
