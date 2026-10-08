@@ -48,11 +48,15 @@
   width: 40px;
   height: 40px;
   border-radius: 13px;
-  color: white;
-  background: linear-gradient(140deg, #347df2, #1555c5);
-  font-size: 23px;
-  font-weight: 800;
+  background: linear-gradient(140deg, #eaf3ff, #dceaff);
   box-shadow: 0 8px 18px #2466dd30;
+}
+
+.brand-mark img {
+  display: block;
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
 }
 
 .brand-copy {
@@ -137,9 +141,29 @@
   font-weight: 400;
 }
 
+/* ===== 页面背景：透明度仅作用于图片层 ===== */
+
 .main-content {
+  --page-background: none;
+  --page-background-position: center top;
+  --page-background-opacity: .14;
   flex: 1;
   padding: 30px 28px 82px;
+  position: relative;
+  isolation: isolate;
+}
+
+.main-content::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: var(--page-background);
+  background-position: var(--page-background-position);
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: var(--page-background-opacity);
+  pointer-events: none;
 }
 
 .main-content:focus {

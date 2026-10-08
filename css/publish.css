@@ -1,5 +1,10 @@
 /* 发布信息：表单、校验、草稿与侧栏 */
 
+.page-publish {
+  --page-background: url("../assets/images/publish-notebook.jpg");
+  --page-background-position: left top;
+}
+
 /* ===== 页面布局与表单标题 ===== */
 
 .publish-layout {

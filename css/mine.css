@@ -1,5 +1,9 @@
 /* 我的发布：记录列表与管理操作 */
 
+.page-mine {
+  --page-background: url("../assets/images/mine-stationery.jpg");
+}
+
 /* ===== 记录列表 ===== */
 
 .mine-list {

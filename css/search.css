@@ -1,5 +1,9 @@
 /* 发现信息：搜索面板、筛选与结果 */
 
+.page-search {
+  --page-background: url("../assets/images/search-library.jpg");
+}
+
 /* ===== 搜索面板 ===== */
 
 .search-panel {
