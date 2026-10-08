@@ -418,3 +418,145 @@ test("寻物信息可在我的发布中标记为已找到", async () => {
   assert.match(harness.app.innerHTML, /已找到/);
   assert.equal(JSON.parse(store.get("shiguang_local_posts_v1"))[0].status, "closed");
 });
+
+function searchResultIds(app) {
+  return Array.from(app.innerHTML.matchAll(/href="#\/detail\/([^?"]+)\?/g), match => match[1]);
+}
+
+test("地点筛选贯通表单和页面，逐项排除名称、描述与组合条件的干扰记录", () => {
+  const matching = core.createRecord({
+    ...publishFields(), title: "验收标记水杯", place: "North Library 2"
+  }, { id: "scope-match" });
+  const records = [
+    matching,
+    { ...matching, id: "scope-title", place: "第一食堂", title: "Library 验收标记水杯" },
+    { ...matching, id: "scope-description", place: "东区操场", description: "在 Library 附近发现验收标记，请先核对外观特征。" },
+    { ...matching, id: "scope-type", type: "lost" },
+    { ...matching, id: "scope-category", category: "数码物品" },
+    { ...matching, id: "scope-status", status: "closed" },
+    { ...matching, id: "scope-keyword", title: "其他保温杯" }
+  ];
+  const store = new Map([["shiguang_local_posts_v1", JSON.stringify(records)]]);
+  const placeOnly = ["scope-match", "scope-type", "scope-category", "scope-status", "scope-keyword"];
+  const combined = { keyword: "验收标记", type: "found", category: "水杯", status: "open" };
+  const cases = [
+    { filters: { place: "library" }, expected: placeOnly },
+    { filters: { place: "  NORTH \t LIBRARY  " }, expected: placeOnly },
+    { filters: { ...combined, place: "LIBRARY" }, expected: ["scope-match"] },
+    { filters: { ...combined, place: "" }, expected: ["scope-match", "scope-title", "scope-description"] },
+    { filters: { ...combined, place: "不存在的车站" }, expected: [] }
+  ];
+  const harness = startApp("#/search", store);
+  for (const { filters, expected } of cases) {
+    const form = new harness.MockForm("search", { keyword: "", type: "all", category: "all", status: "all", ...filters });
+    harness.events.submit({ target: form, preventDefault() {} });
+    harness.rerender();
+    assert.deepEqual(searchResultIds(harness.app).sort(), [...expected].sort(), JSON.stringify(filters));
+    assert.ok(harness.app.innerHTML.includes("找到 " + expected.length + " 条信息"));
+  }
+});
+
+test("地点筛选合并本机与示例记录，按发布时间排序且不改写缓存", () => {
+  const recent = core.createRecord({
+    ...publishFields(), title: "较新验收水杯"
+  }, { id: "recent-place", now: new Date("2026-09-29T09:00:00Z") });
+  const older = core.createRecord({
+    ...publishFields(), date: "2026-09-20", title: "较早验收水杯"
+  }, { id: "older-place", now: new Date("2026-09-20T09:00:00Z") });
+  const raw = JSON.stringify([older, recent]);
+  const store = new Map([["shiguang_local_posts_v1", raw]]);
+  const { app } = startApp("#/search?" + new URLSearchParams({ place: "图书馆" }), store);
+  assert.deepEqual(searchResultIds(app), ["recent-place", "sample-card", "older-place"]);
+  assert.equal(store.get("shiguang_local_posts_v1"), raw);
+});
+
+for (const type of ["found", "lost"]) {
+  test("本机发布" + (type === "found" ? "招领" : "寻物") + "后可按地点查找，结束和撤销后筛选与刷新保持一致", async () => {
+    const harness = startApp("#/publish");
+    const fields = { ...publishFields(), type, title: "完整流程验收水杯", place: "验收楼三层" };
+    harness.events.submit({ target: new harness.MockForm("publish", fields), preventDefault() {} });
+    harness.rerender();
+    assert.match(harness.app.innerHTML, /发布成功/);
+    const record = JSON.parse(harness.store.get("shiguang_local_posts_v1"))[0];
+    const filters = { keyword: "完整流程", place: "验收楼", type, category: "水杯", status: "open" };
+    const openHash = "#/search?" + new URLSearchParams(filters);
+    harness.context.location.hash = openHash;
+    harness.rerender();
+    assert.deepEqual(searchResultIds(harness.app), [record.id]);
+    const card = harness.app.innerHTML.match(/href="([^"]+)" aria-label="查看完整流程验收水杯详情"/)[1];
+    harness.context.location.hash = card;
+    harness.rerender();
+    assert.ok(harness.app.innerHTML.includes("标记为" + (type === "found" ? "已归还" : "已找到")));
+    await harness.events.click({ target: new harness.MockButton("close", record.id) });
+    assert.match(harness.app.innerHTML, /联系方式已隐藏/);
+    assert.ok(!harness.app.innerHTML.includes(fields.contact));
+    const back = harness.app.innerHTML.match(/class="detail-back"><a href="([^"]+)"/)[1].replaceAll("&amp;", "&");
+    assert.equal(back, openHash);
+    harness.context.location.hash = back;
+    harness.rerender();
+    assert.deepEqual(searchResultIds(harness.app), []);
+    assert.match(harness.app.innerHTML, /id="search-place"[^>]*value="验收楼"/);
+
+    const closedHash = "#/search?" + new URLSearchParams({ ...filters, status: "closed" });
+    const reopenedPage = startApp(closedHash, harness.store);
+    assert.deepEqual(searchResultIds(reopenedPage.app), [record.id]);
+    const closedCard = reopenedPage.app.innerHTML.match(/href="([^"]+)" aria-label="查看完整流程验收水杯详情"/)[1];
+    reopenedPage.context.location.hash = closedCard;
+    reopenedPage.rerender();
+    assert.match(reopenedPage.app.innerHTML, /撤销结束/);
+    await reopenedPage.events.click({ target: new reopenedPage.MockButton("reopen", record.id) });
+    assert.ok(reopenedPage.app.innerHTML.includes(fields.contact));
+    const closedBack = reopenedPage.app.innerHTML.match(/class="detail-back"><a href="([^"]+)"/)[1].replaceAll("&amp;", "&");
+    assert.equal(closedBack, closedHash);
+    reopenedPage.context.location.hash = closedBack;
+    reopenedPage.rerender();
+    assert.deepEqual(searchResultIds(reopenedPage.app), []);
+    const refreshed = startApp(openHash, harness.store);
+    assert.deepEqual(searchResultIds(refreshed.app), [record.id]);
+    assert.equal(JSON.parse(harness.store.get("shiguang_local_posts_v1"))[0].status, "open");
+    assert.match(refreshed.app.innerHTML, /id="search-place"[^>]*value="验收楼"/);
+  });
+}
+
+test("异常类型、类别和状态回退到全部，详情返回仍保留合法地点", () => {
+  const query = new URLSearchParams({ place: " 图书馆 ", type: "invalid", category: "invalid", status: "invalid" });
+  const harness = startApp("#/search?" + query);
+  assert.deepEqual(searchResultIds(harness.app), ["sample-card"]);
+  for (const name of ["type", "category", "status"]) {
+    assert.ok(harness.app.innerHTML.includes('<select name="' + name + '"><option value="all" selected>'));
+  }
+  const card = harness.app.innerHTML.match(/href="([^"]+)" aria-label="查看蓝色校园卡详情"/)[1];
+  harness.context.location.hash = card;
+  harness.rerender();
+  const back = harness.app.innerHTML.match(/class="detail-back"><a href="([^"]+)"/)[1].replaceAll("&amp;", "&");
+  assert.equal(back, "#/search?" + new URLSearchParams({ place: "图书馆" }));
+});
+
+test("详情记录不存在时，空状态的返回入口仍恢复地点及状态筛选", () => {
+  const query = new URLSearchParams({ place: "教学楼", status: "closed" });
+  const returnTo = "/search?" + query;
+  const harness = startApp("#/detail/missing-place?" + new URLSearchParams({ returnTo }));
+  assert.match(harness.app.innerHTML, /没有找到这条信息/);
+  const back = harness.app.innerHTML.match(/href="([^"]+)" class="button button-primary"/)[1].replaceAll("&amp;", "&");
+  assert.equal(back, "#" + returnTo);
+  harness.context.location.hash = back;
+  harness.rerender();
+  assert.deepEqual(searchResultIds(harness.app), ["sample-keys"]);
+  assert.match(harness.app.innerHTML, /id="search-place"[^>]*value="教学楼"/);
+  assert.match(harness.app.innerHTML, /value="closed" selected/);
+});
+
+test("本地存储读取受限时仍可用地点筛选示例记录并展示存储提醒", () => {
+  const store = new Map();
+  store.get = () => { throw new Error("storage unavailable"); };
+  const harness = startApp("#/search?" + new URLSearchParams({ place: "教学楼" }), store);
+  assert.match(harness.app.innerHTML, /当前浏览器不允许本地存储/);
+  assert.deepEqual(searchResultIds(harness.app), ["sample-keys", "sample-bottle"]);
+  harness.events.submit({
+    target: new harness.MockForm("search", { place: "图书馆", type: "all", category: "all", status: "all" }),
+    preventDefault() {}
+  });
+  harness.rerender();
+  assert.deepEqual(searchResultIds(harness.app), ["sample-card"]);
+  assert.match(harness.app.innerHTML, /id="search-place"[^>]*value="图书馆"/);
+});
