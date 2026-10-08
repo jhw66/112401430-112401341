@@ -52,7 +52,7 @@
         <h3>${escapeHtml(item.title)}</h3>
         <p class="card-description">${escapeHtml(item.description)}</p>
         <div class="card-meta"><span>⌖ ${escapeHtml(item.place)}</span><span>◷ ${dateLabel(item.date)}</span></div>
-        <div class="card-bottom"><span>${escapeHtml(item.category)}${item.owner === "sample" ? " · 演示信息" : ""}</span><span class="card-arrow" aria-hidden="true">↗</span></div>
+        <div class="card-bottom"><span>${escapeHtml(item.category)}</span><span class="card-arrow" aria-hidden="true">↗</span></div>
       </a>`;
     }
 
