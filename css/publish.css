@@ -188,6 +188,25 @@
   min-height: 0;
 }
 
+/* ===== 邮箱与手机号：至少填写一种 ===== */
+
+.contact-fieldset {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  margin: 0 0 4px;
+}
+
+.contact-fieldset legend {
+  color: #35445c;
+  font-weight: 750;
+  font-size: 14px;
+}
+
+.contact-fieldset > .field-hint {
+  margin: 9px 0 16px;
+}
+
 /* ===== 提交操作与草稿 ===== */
 
 .form-actions {

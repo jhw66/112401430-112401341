@@ -10,7 +10,7 @@
   "use strict";
 
   const { localDate, validCalendarDate, errorWithCode, makeId } = utils;
-  const { normalizeDraft, validateDraft } = validation;
+  const { normalizeDraft, validateContacts, validateDraft } = validation;
   const { CATEGORIES, TYPES } = constants;
 
   function createRecord(draft, options = {}) {
@@ -42,7 +42,9 @@
       typeof item.title === "string" && item.title.length >= 2 && item.title.length <= 40 &&
       typeof item.place === "string" && item.place.length >= 2 && item.place.length <= 60 &&
       typeof item.description === "string" && item.description.length >= 10 && item.description.length <= 500 &&
-      typeof item.contact === "string" && item.contact.length >= 5 && item.contact.length <= 100 &&
+      typeof item.contact === "string" &&
+      (item.phone === undefined ? item.contact.length >= 5 && item.contact.length <= 100 :
+        Object.keys(validateContacts(item)).length === 0) &&
       validCalendarDate(item.date) && typeof item.createdAt === "string" &&
       !Number.isNaN(Date.parse(item.createdAt));
   }

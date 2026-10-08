@@ -59,3 +59,44 @@ test("发布成功清除草稿，同一表单重复提交只产生一条记录",
   const reopened = startApp("#/publish", harness.store);
   assert.ok(!reopened.app.innerHTML.includes('value="验收水杯"'));
 });
+for (const [label, contacts] of [
+  ["邮箱", { contact: "audit@example.edu", phone: "" }],
+  ["手机号", { contact: "", phone: "13800138000" }],
+  ["邮箱和手机号", { contact: "audit@example.edu", phone: "13800138000" }]
+]) {
+  test(`发布${label}后刷新详情，独立展示并复制所填联系方式`, async () => {
+    const harness = startApp("#/publish");
+    const form = new harness.MockForm("publish", { ...publishFields(), ...contacts });
+    harness.events.submit({ target: form, preventDefault() {} });
+    const item = JSON.parse(harness.store.get("shiguang_local_posts_v1"))[0];
+    assert.equal(item.contact, contacts.contact);
+    assert.equal(item.phone, contacts.phone);
+    const detail = startApp(`#/detail/${item.id}`, harness.store);
+    const expected = [contacts.contact, contacts.phone].filter(Boolean);
+    const buttonValues = Array.from(detail.app.innerHTML.matchAll(/data-action="copy" data-contact="([^"]+)"/g), match => match[1]);
+    assert.deepEqual(buttonValues, expected);
+    const copied = [];
+    detail.context.navigator = { clipboard: { writeText: async value => { copied.push(value); } } };
+    for (const value of buttonValues) {
+      const button = new detail.MockButton("copy", item.id);
+      button.dataset.contact = value;
+      await detail.events.click({ target: button });
+    }
+    assert.deepEqual(copied, expected);
+  });
+}
+
+test("联系方式缺失或格式错误时保留草稿，不能写入新发布记录", () => {
+  for (const contacts of [
+    { contact: "", phone: "" },
+    { contact: "invalid", phone: "13800138000" },
+    { contact: "audit@example.edu", phone: "123" }
+  ]) {
+    const harness = startApp("#/publish");
+    const fields = { ...publishFields(), ...contacts };
+    harness.events.submit({ target: new harness.MockForm("publish", fields), preventDefault() {} });
+    assert.equal(harness.context.location.hash, "#/publish");
+    assert.equal(harness.store.has("shiguang_local_posts_v1"), false);
+    assert.deepEqual(JSON.parse(harness.store.get("shiguang_publish_draft_v1")), fields);
+  }
+});

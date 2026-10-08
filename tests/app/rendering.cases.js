@@ -38,3 +38,15 @@ test("本机尚未发布时，我的发布显示明确空状态", () => {
   assert.match(app.innerHTML, /还没有发布过信息/);
   assert.match(app.innerHTML, /发布第一条信息/);
 });
+test("旧手机号联系方式仍显示和复制，详情转义历史联系方式", () => {
+  const { localRecord } = require("../helpers/fixtures.js");
+  const { phone, ...legacy } = localRecord("legacy-contact");
+  for (const contact of ["13800138000", '"><img src=x onerror=alert(1)>']) {
+    const item = { ...legacy, contact };
+    const { app } = startApp(`#/detail/${item.id}`, new Map([["shiguang_local_posts_v1", JSON.stringify([item])]]));
+    assert.match(app.innerHTML, /复制联系方式/);
+    assert.ok(!app.innerHTML.includes('class="contact-label">邮箱'));
+    assert.ok(!app.innerHTML.includes("<img src=x"));
+    assert.ok(!app.innerHTML.includes("部分本地记录格式异常"));
+  }
+});

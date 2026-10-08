@@ -7,13 +7,13 @@ const NOW = new Date(2026, 8, 29, 12, 0, 0);
 const draft = () => ({
   type: "found", title: " 蓝色校园卡 ", category: "证件卡片",
   place: " 图书馆二楼 ", date: "2026-09-28",
-  description: "在二楼自习区捡到一张蓝色校园卡。", contact: " finder@example.edu "
+  description: "在二楼自习区捡到一张蓝色校园卡。", contact: " finder@example.edu ", phone: ""
 });
 const localRecord = (id = "local-1") => core.createRecord(draft(), { id, now: NOW });
 
 function publishFields() {
   return { type: "found", title: "验收水杯", category: "水杯", place: "图书馆二楼",
-    date: "2026-09-28", description: "验收使用的蓝色水杯，杯盖上有白色小图案。", contact: "audit@example.edu" };
+    date: "2026-09-28", description: "验收使用的蓝色水杯，杯盖上有白色小图案。", contact: "audit@example.edu", phone: "" };
 }
 
 module.exports = { NOW, draft, localRecord, publishFields };

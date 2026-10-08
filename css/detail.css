@@ -166,13 +166,27 @@
   margin: 0;
 }
 
+.contact-method {
+  margin-top: 19px;
+}
+
+.contact-method + .contact-method {
+  border-top: 1px solid var(--line);
+  padding-top: 19px;
+}
+
+.contact-label {
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .contact-value {
   overflow-wrap: anywhere;
   background: #f4f7fb;
   border: 1px dashed #cedbeb;
   padding: 14px;
   border-radius: 10px;
-  margin: 19px 0 13px;
+  margin: 8px 0 13px;
   color: #315280;
   font-size: 13px;
   font-weight: 700;

@@ -64,3 +64,15 @@ test("发布者可撤销结束，不能撤销别人的信息或重复恢复", ()
   assert.throws(() => core.markReopened([localRecord()], "local-1"), { code: "ALREADY_OPEN" });
   assert.throws(() => core.markReopened([], "missing"), { code: "NOT_FOUND" });
 });
+test("新记录保存独立手机号，手机号记录经缓存读取仍可更新状态", () => {
+  const item = core.createRecord({ ...draft(), contact: "", phone: " 13800138000 " }, { id: "phone-only", now: NOW });
+  assert.equal(item.contact, "");
+  assert.equal(item.phone, "13800138000");
+  assert.equal(core.isRecord(item), true);
+  const restored = core.parseLocalRecords(JSON.stringify([item]));
+  assert.equal(restored.invalid, false);
+  assert.deepEqual(core.markClosed(restored.records, item.id)[0], { ...item, status: "closed" });
+  for (const changed of [{ contact: "", phone: "" }, { phone: "abc" }, { contact: "invalid", phone: "13800138000" }]) {
+    assert.equal(core.isRecord({ ...item, ...changed }), false);
+  }
+});

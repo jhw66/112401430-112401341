@@ -64,8 +64,8 @@
       return `<option value="${escapeHtml(value)}"${value === selected ? " selected" : ""}>${escapeHtml(label)}</option>`;
     }
 
-    function formField(name, label, control, hint = "") {
-      return `<div class="form-field" data-field="${name}"><label for="field-${name}">${label}<span class="required" aria-hidden="true"> *</span></label>${control}${hint ? `<small class="field-hint">${hint}</small>` : ""}<span class="field-error" data-error-for="${name}" aria-live="polite"></span></div>`;
+    function formField(name, label, control, hint = "", required = true) {
+      return `<div class="form-field" data-field="${name}"><label for="field-${name}">${label}${required ? '<span class="required" aria-hidden="true"> *</span>' : ""}</label>${control}${hint ? `<small class="field-hint">${hint}</small>` : ""}<span id="error-${name}" class="field-error" data-error-for="${name}" aria-live="polite"></span></div>`;
     }
 
     function showFormErrors(form, errors) {

@@ -81,3 +81,19 @@ for (const type of ["found", "lost"]) {
     assert.match(refreshed.app.innerHTML, /id="search-place"[^>]*value="验收楼"/);
   });
 }
+test("结束信息隐藏邮箱和手机号，撤销并刷新后两者恢复", async () => {
+  const { localRecord } = require("../helpers/fixtures.js");
+  const item = { ...localRecord("both-contacts"), phone: "13800138000" };
+  const harness = startApp(`#/detail/${item.id}`, new Map([["shiguang_local_posts_v1", JSON.stringify([item])]]));
+  await harness.events.click({ target: new harness.MockButton("close", item.id) });
+  const closed = startApp(`#/detail/${item.id}`, harness.store);
+  assert.ok(!closed.app.innerHTML.includes(item.contact));
+  assert.ok(!closed.app.innerHTML.includes(item.phone));
+  assert.ok(!closed.app.innerHTML.includes('data-action="copy"'));
+  await closed.events.click({ target: new closed.MockButton("reopen", item.id) });
+  const reopened = startApp(`#/detail/${item.id}`, harness.store);
+  assert.match(reopened.app.innerHTML, /复制邮箱/);
+  assert.match(reopened.app.innerHTML, /复制手机号/);
+  assert.ok(reopened.app.innerHTML.includes(item.contact));
+  assert.ok(reopened.app.innerHTML.includes(item.phone));
+});
