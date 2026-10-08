@@ -285,6 +285,7 @@
     min-width: 0;
   }
 
+  .filter-row input,
   .filter-row select {
     width: 100%;
     min-width: 0;
@@ -383,6 +384,7 @@
 
   .hero-search input,
   .search-input-wrap input,
+  .filter-row input,
   .filter-row select,
   .form-field input,
   .form-field select,
