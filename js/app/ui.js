@@ -55,6 +55,11 @@
       return `<span class="${className}" aria-hidden="true">${icons[item.category] || "✦"}</span>`;
     }
 
+    function deleteButton(item) {
+      if (item.owner !== "local" || item.status !== "closed") return "";
+      return `<button class="button button-danger hold-delete" type="button" data-action="delete" data-id="${escapeHtml(item.id)}" aria-label="长按1秒删除${escapeHtml(item.title)}" title="按住1秒删除；删除后不可恢复。键盘可按住空格或回车，按 Esc 取消。"><span>长按删除</span></button>`;
+    }
+
     function itemCard(item, returnTo = "/search") {
       const href = `#${detailPath(item.id, returnTo)}`;
       return `<a class="item-card ${item.status === "closed" ? "item-card-closed" : ""}" href="${href}" aria-label="查看${escapeHtml(item.title)}详情">
@@ -92,6 +97,6 @@
       if (target && typeof target.focus === "function") target.focus();
     }
 
-    return { icons, escapeHtml, showToast, dateLabel, publishedDateLabel, typePill, statusPill, itemVisual, itemCard, warningHtml, option, formField, showFormErrors };
+    return { icons, escapeHtml, showToast, dateLabel, publishedDateLabel, typePill, statusPill, itemVisual, deleteButton, itemCard, warningHtml, option, formField, showFormErrors };
   };
 })(window);

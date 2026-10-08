@@ -5,7 +5,7 @@
   const modules = root.ShiguangAppModules || (root.ShiguangAppModules = {});
   modules.pages = modules.pages || {};
   modules.pages.detail = function ({ core, store, ui, router }) {
-    const { warningHtml, escapeHtml, itemVisual, typePill, statusPill, dateLabel, publishedDateLabel } = ui;
+    const { warningHtml, escapeHtml, itemVisual, deleteButton, typePill, statusPill, dateLabel, publishedDateLabel } = ui;
     const { detailReturn } = router;
 
     function renderDetail(id, params = new URLSearchParams()) {
@@ -22,7 +22,7 @@
         <section class="detail-main"><div class="detail-heading">${itemVisual(item, true)}<div class="detail-heading-copy"><div class="detail-pills">${typePill(item)}${statusPill(item)}${item.owner === "sample" ? '<span class="sample-pill">演示信息</span>' : ""}</div><h1>${escapeHtml(item.title)}</h1><p>发布于 ${publishedDateLabel(item.createdAt)}${owned ? ` · 配图 ${item.imageNumber}（装饰角色）` : ""}</p></div></div>
           <div class="detail-divider"></div><h2>物品信息</h2><dl class="detail-facts"><div><dt>物品类别</dt><dd>${escapeHtml(item.category)}</dd></div><div><dt>${item.type === "lost" ? "遗失地点" : "拾取地点"}</dt><dd>${escapeHtml(item.place)}</dd></div><div><dt>${item.type === "lost" ? "遗失日期" : "拾取日期"}</dt><dd>${dateLabel(item.date)}</dd></div><div><dt>当前状态</dt><dd>${core.STATUS_LABELS[item.type][item.status]}</dd></div></dl>
           <div class="detail-description"><h2>详细描述</h2><p>${escapeHtml(item.description)}</p></div>
-          ${owned ? `<div class="owner-action"><div><strong>${item.status === "open" ? `物品已经${item.type === "lost" ? "找到" : "归还"}了吗？` : "刚才标记错了吗？"}</strong><p>${item.status === "open" ? "结束后记录仍保留，联系方式会隐藏；误操作可撤销结束。" : "撤销后恢复为进行中，联系方式将重新显示。"}</p></div><button class="button button-secondary" type="button" data-action="${item.status === "open" ? "close" : "reopen"}" data-id="${escapeHtml(item.id)}">${item.status === "open" ? `标记为${item.type === "lost" ? "已找到" : "已归还"}` : "撤销结束"}</button></div>` : ""}
+          ${owned ? `<div class="owner-action"><div><strong>${item.status === "open" ? `物品已经${item.type === "lost" ? "找到" : "归还"}了吗？` : "刚才标记错了吗？"}</strong><p>${item.status === "open" ? "结束后记录仍保留，联系方式会隐藏；误操作可撤销结束。" : "撤销后恢复为进行中；也可长按删除按钮1秒，删除后不可恢复。"}</p></div><div class="owner-action-buttons"><button class="button button-secondary" type="button" data-action="${item.status === "open" ? "close" : "reopen"}" data-id="${escapeHtml(item.id)}">${item.status === "open" ? `标记为${item.type === "lost" ? "已找到" : "已归还"}` : "撤销结束"}</button>${deleteButton(item)}</div></div>` : ""}
         </section>
         <aside class="detail-aside">${item.status === "open" ? `<div class="contact-card"><span class="eyebrow">联系发布者</span><h2>有线索？联系 Ta</h2><p>联系前请先核对物品特征，避免误领。</p>${contactMethods}${item.owner === "sample" ? '<small>此条为演示信息，联系方式不是实际联系人。</small>' : ""}</div>` : '<div class="contact-card contact-closed"><span class="eyebrow">信息已结束</span><h2>物品已有结果</h2><p>发布者已更新状态，无需再联系。联系方式已隐藏，避免重复询问。</p></div>'}<div class="privacy-card"><strong>安全提醒</strong><p>认领时先核对物品特征；不要向陌生人提供密码、验证码或完整证件号。</p></div></aside>
       </article>`;

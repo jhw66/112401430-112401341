@@ -72,18 +72,33 @@
       }
     }
 
-    function addRecord(item) {
-      // 发布前读取其他标签页保存的记录；存储失败时保留当前内存记录。
+    function refreshLocalRecords() {
+      // 写入前读取其他标签页保存的记录；存储失败时保留当前内存记录。
       if (!storageWarning) {
         try {
           const parsed = core.parseLocalRecords(localStorage.getItem(storageKey));
           if (!parsed.invalid) localRecords = parsed.records;
         } catch { /* 继续使用当前页面的内存记录。 */ }
       }
+    }
+
+    function addRecord(item) {
+      refreshLocalRecords();
       localRecords = core.addLocalRecord(localRecords, item);
     }
 
+    function deleteRecord(id) {
+      refreshLocalRecords();
+      const previous = localRecords;
+      localRecords = core.deleteRecord(localRecords, id);
+      if (!saveLocalRecords()) {
+        localRecords = previous;
+        throw new Error("删除未能保存，记录已保留，请稍后重试。");
+      }
+    }
+
     function updateStatus(id, reopening) {
+      refreshLocalRecords();
       localRecords = reopening
         ? core.markReopened(localRecords, id)
         : core.markClosed(localRecords, id);
@@ -91,7 +106,7 @@
 
     return {
       allRecords, saveLocalRecords, persistPublishDraft, clearPublishDraft,
-      addRecord, updateStatus,
+      addRecord, deleteRecord, updateStatus,
       get localRecords() { return localRecords; },
       get publicationLimitReached() { return localRecords.length >= core.MAX_LOCAL_RECORDS; },
       get pendingDraft() { return pendingDraft; },

@@ -113,3 +113,36 @@ test("配图编号只允许整数一至十，添加入口拒绝示例和重复�
   const created = core.createRecord({ ...draft(), imageNumber: 10 }, { id: "untrusted-image", now: NOW });
   assert.equal(core.addLocalRecord([], created)[0].imageNumber, 1);
 });
+
+test("只能删除已结束的个人线索，原数组和剩余记录保持不变", () => {
+  for (const type of ["lost", "found"]) {
+    const removed = { ...localRecord("delete-me"), type, status: "closed", imageNumber: 3 };
+    const remaining = { ...localRecord("keep-me"), imageNumber: 7 };
+    const records = [removed, remaining, ...core.SAMPLE_RECORDS];
+    const before = JSON.stringify(records);
+    const result = core.deleteRecord(records, removed.id);
+    assert.equal(result.length, records.length - 1);
+    assert.equal(result[0], remaining);
+    assert.equal(JSON.stringify(records), before);
+    assert.deepEqual(result.slice(1), [...core.SAMPLE_RECORDS]);
+  }
+});
+
+test("删除入口拒绝进行中、演示、其他发布者及不存在的线索", () => {
+  const open = localRecord("still-open");
+  const closed = { ...open, status: "closed" };
+  assert.throws(() => core.deleteRecord([open], open.id), { code: "NOT_CLOSED" });
+  assert.throws(() => core.deleteRecord([...core.SAMPLE_RECORDS], "sample-keys"), { code: "FORBIDDEN" });
+  assert.throws(() => core.deleteRecord([...core.SAMPLE_RECORDS], "sample-keys", "sample"), { code: "FORBIDDEN" });
+  assert.throws(() => core.deleteRecord([closed], closed.id, "other"), { code: "FORBIDDEN" });
+  assert.throws(() => core.deleteRecord([closed], "missing"), { code: "NOT_FOUND" });
+});
+
+test("删除释放数量和配图编号，重新发布保留其他记录的原编号", () => {
+  const records = Array.from({ length: 10 }, (_, index) => ({ ...localRecord(`slot-${index+1}`), status: "closed", imageNumber: index+1 }));
+  const remaining = core.deleteRecord(records, "slot-4");
+  const next = core.addLocalRecord(remaining, localRecord("replacement"));
+  assert.equal(next.length, 10);
+  assert.equal(next[0].imageNumber, 4);
+  assert.deepEqual(next.slice(1).map(item => item.imageNumber), [1,2,3,5,6,7,8,9,10]);
+});

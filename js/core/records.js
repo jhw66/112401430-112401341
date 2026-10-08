@@ -89,6 +89,18 @@
     return [{ ...item, imageNumber }, ...numbered, ...records.filter(record => record.owner !== "local")];
   }
 
+  function deleteRecord(records, id, actor = "local") {
+    const record = records.find(item => item.id === id);
+    if (!record) throw errorWithCode("NOT_FOUND", "信息不存在。");
+    if (record.owner !== "local" || record.owner !== actor) {
+      throw errorWithCode("FORBIDDEN", "只能删除本机发布的信息。");
+    }
+    if (record.status !== "closed") {
+      throw errorWithCode("NOT_CLOSED", "请先标记为已找到或已归还，再长按删除。");
+    }
+    return records.filter(item => item.id !== id);
+  }
+
   function changeStatus(records, id, nextStatus, actor) {
     const index = records.findIndex(item => item.id === id);
     if (index < 0) throw errorWithCode("NOT_FOUND", "信息不存在。");
@@ -109,5 +121,5 @@
     return changeStatus(records, id, "open", actor);
   }
 
-  return Object.freeze({ createRecord, isRecord, assignRecordImages, addLocalRecord, markClosed, markReopened });
+  return Object.freeze({ createRecord, isRecord, assignRecordImages, addLocalRecord, deleteRecord, markClosed, markReopened });
 });
