@@ -41,6 +41,10 @@ function startApp(initialHash = "#/home", store = new Map(), coreOverride = null
     }
     closest() { return this; }
   }
+  class MockSelect extends MockElement {
+    constructor(form) { super(); this.form = form; }
+    closest(selector) { return this.form.closest(selector); }
+  }
   class MockFormData {
     constructor(form) { this.fields = form.fields; }
     entries() { return Object.entries(this.fields)[Symbol.iterator](); }
@@ -60,7 +64,7 @@ function startApp(initialHash = "#/home", store = new Map(), coreOverride = null
     },
     location,
     localStorage: { getItem: key => store.get(key) ?? null, setItem: (key, value) => store.set(key, value), removeItem: key => store.delete(key) },
-    HTMLFormElement: MockForm, HTMLButtonElement: MockButton, HTMLSelectElement: class {},
+    HTMLFormElement: MockForm, HTMLButtonElement: MockButton, HTMLSelectElement: MockSelect,
     HTMLElement: MockElement, FormData: MockFormData, URLSearchParams,
     setTimeout: () => 1, clearTimeout() {}, console
   };
@@ -71,7 +75,7 @@ function startApp(initialHash = "#/home", store = new Map(), coreOverride = null
     vm.runInContext(script.source, sandbox, { filename: script.filename });
     if (script.filename === "js/core.js" && coreOverride) sandbox.ShiguangCore = coreOverride;
   }
-  return { app, toast, context, events, windowEvents, store, MockForm, MockButton, rerender: () => windowEvents.hashchange() };
+  return { app, toast, context, events, windowEvents, store, MockForm, MockButton, MockSelect, rerender: () => windowEvents.hashchange() };
 }
 
 test("首页显示示例记录、搜索框和发布入口", () => {
@@ -106,6 +110,124 @@ test("首页搜索表单可导航到结果页，组合筛选可提交", () => {
   assert.match(harness.app.innerHTML, /找到 1 条信息/);
   assert.match(harness.context.location.hash, /type=found/);
   assert.match(harness.context.location.hash, /status=open/);
+});
+
+test("地点输入已启用，仅填写地点提交会规范化 URL 并筛选结果", () => {
+  const harness = startApp("#/search");
+  const placeInput = harness.app.innerHTML.match(/<input id="search-place"[^>]*>/)[0];
+  assert.ok(!placeInput.includes("disabled"));
+  assert.ok(!harness.app.innerHTML.includes("地点筛选暂未开放"));
+  const form = new harness.MockForm("search", { place: "  图书馆  ", type: "all", category: "all", status: "all" });
+  harness.events.submit({ target: form, preventDefault() {} });
+  assert.equal(harness.context.location.hash, "#/search?" + new URLSearchParams({ place: "图书馆" }));
+  harness.rerender();
+  assert.match(harness.app.innerHTML, /找到 1 条信息/);
+  assert.match(harness.app.innerHTML, /蓝色校园卡/);
+  assert.match(harness.app.innerHTML, /id="search-place"[^>]*value="图书馆"/);
+  assert.ok(!harness.app.innerHTML.includes("黑色折叠伞"));
+});
+
+test("搜索提交同时携带关键词、地点、类型、类别和状态", () => {
+  const harness = startApp("#/search");
+  const filters = { keyword: "校园卡", place: "图书馆", type: "found", category: "证件卡片", status: "open" };
+  const form = new harness.MockForm("search", filters);
+  harness.events.submit({ target: form, preventDefault() {} });
+  const params = new URLSearchParams(harness.context.location.hash.split("?")[1]);
+  assert.deepEqual(Object.fromEntries(params), filters);
+  harness.rerender();
+  assert.match(harness.app.innerHTML, /找到 1 条信息/);
+  form.fields.place = "食堂";
+  harness.events.submit({ target: form, preventDefault() {} });
+  harness.rerender();
+  assert.match(harness.app.innerHTML, /找到 0 条信息/);
+  assert.match(harness.app.innerHTML, /暂时没有匹配的信息/);
+});
+
+test("空白地点不写入 URL，保持全部信息且回填为空", () => {
+  const harness = startApp("#/search");
+  const form = new harness.MockForm("search", {
+    keyword: "", place: " \t\r\n ", type: "all", category: "all", status: "all"
+  });
+  harness.events.submit({ target: form, preventDefault() {} });
+  assert.equal(harness.context.location.hash, "#/search");
+  harness.rerender();
+  assert.match(harness.app.innerHTML, /找到 5 条信息/);
+  assert.match(harness.app.innerHTML, /id="search-place"[^>]*value=""/);
+});
+
+test("下拉框变化读取当前表单，保留尚未提交的地点及其他条件", () => {
+  const harness = startApp("#/search");
+  const form = new harness.MockForm("search", {
+    keyword: "水杯", place: " 教学楼 ", type: "found", category: "水杯", status: "open"
+  });
+  harness.events.change({ target: new harness.MockSelect(form) });
+  const params = new URLSearchParams(harness.context.location.hash.split("?")[1]);
+  assert.deepEqual(Object.fromEntries(params), {
+    keyword: "水杯", place: "教学楼", type: "found", category: "水杯", status: "open"
+  });
+  harness.rerender();
+  assert.match(harness.app.innerHTML, /找到 1 条信息/);
+  assert.match(harness.app.innerHTML, /浅蓝色水杯/);
+  assert.match(harness.app.innerHTML, /id="search-place"[^>]*value="教学楼"/);
+});
+
+test("直接打开搜索链接与重启页面时恢复五项筛选及结果", () => {
+  const query = new URLSearchParams({ keyword: "校园卡", place: "图书馆", type: "found", category: "证件卡片", status: "open" });
+  const initial = startApp("#/search?" + query);
+  const refreshed = startApp(initial.context.location.hash, initial.store);
+  for (const { app } of [initial, refreshed]) {
+    assert.match(app.innerHTML, /id="search-keyword"[^>]*value="校园卡"/);
+    assert.match(app.innerHTML, /id="search-place"[^>]*value="图书馆"/);
+    assert.match(app.innerHTML, /value="found" selected/);
+    assert.match(app.innerHTML, /value="证件卡片" selected/);
+    assert.match(app.innerHTML, /value="open" selected/);
+    assert.match(app.innerHTML, /找到 1 条信息/);
+  }
+});
+
+test("清除筛选链接同时清空地点和其他条件，恢复全部信息", () => {
+  const query = new URLSearchParams({ keyword: "校园卡", place: "图书馆", type: "found", category: "证件卡片", status: "open" });
+  const harness = startApp("#/search?" + query);
+  const reset = harness.app.innerHTML.match(/href="([^"]+)" class="filter-reset"/)[1];
+  assert.equal(reset, "#/search");
+  harness.context.location.hash = reset;
+  harness.rerender();
+  assert.match(harness.app.innerHTML, /id="search-keyword"[^>]*value=""/);
+  assert.match(harness.app.innerHTML, /id="search-place"[^>]*value=""/);
+  for (const name of ["type", "category", "status"]) {
+    assert.ok(harness.app.innerHTML.includes('<select name="' + name + '"><option value="all" selected>'));
+  }
+  assert.match(harness.app.innerHTML, /找到 5 条信息/);
+});
+
+test("URL 中地点的 HTML 特殊字符会转义，不注入输入框或页面", () => {
+  const place = '<script>alert("place")</script>&\'楼';
+  const { app } = startApp("#/search?" + new URLSearchParams({ place }));
+  assert.ok(app.innerHTML.includes('value="&lt;script&gt;alert(&quot;place&quot;)&lt;/script&gt;&amp;&#39;楼"'));
+  assert.ok(!app.innerHTML.includes("<script>"));
+  assert.match(app.innerHTML, /找到 0 条信息/);
+});
+
+test("详情返回保留全部五项筛选，地点中的 URL 保留字符可往返", () => {
+  const place = '图书馆 A&B ? "东侧" <楼> #1 +';
+  const item = core.createRecord({ ...publishFields(), place }, { id: "place-return" });
+  const store = new Map([["shiguang_local_posts_v1", JSON.stringify([item])]]);
+  const query = new URLSearchParams({ keyword: "验收水杯", place, type: "found", category: "水杯", status: "open" });
+  const harness = startApp("#/search?" + query, store);
+  assert.match(harness.app.innerHTML, /找到 1 条信息/);
+  const card = harness.app.innerHTML.match(/href="([^"]+)" aria-label="查看验收水杯详情"/)[1];
+  harness.context.location.hash = card;
+  harness.rerender();
+  const back = harness.app.innerHTML.match(/class="detail-back"><a href="([^"]+)"/)[1].replaceAll("&amp;", "&");
+  assert.equal(back, "#/search?" + query);
+  harness.context.location.hash = back;
+  harness.rerender();
+  assert.equal(new URLSearchParams(back.split("?")[1]).get("place"), place);
+  assert.match(harness.app.innerHTML, /找到 1 条信息/);
+  assert.ok(harness.app.innerHTML.includes('value="图书馆 A&amp;B ? &quot;东侧&quot; &lt;楼&gt; #1 +"'));
+  assert.match(harness.app.innerHTML, /value="found" selected/);
+  assert.match(harness.app.innerHTML, /value="水杯" selected/);
+  assert.match(harness.app.innerHTML, /value="open" selected/);
 });
 
 test("演示详情显示联系方式，但不显示状态修改按钮", () => {
