@@ -15,13 +15,37 @@ const scripts = Array.from(html.matchAll(/<script src="([^"]+)" defer><\/script>
 function startApp(initialHash = "#/home", store = new Map(), coreOverride = null) {
   const events = {};
   const windowEvents = {};
+  const windowHandlers = {};
+  const timers = new Map();
+  let timerId = 0;
+  let clock = 0;
+  function advanceTime(milliseconds) {
+    const end = clock + milliseconds;
+    while (true) {
+      const next = [...timers.entries()].filter(([, timer]) => timer.at <= end).sort((a,b) => a[1].at - b[1].at || a[0] - b[0])[0];
+      if (!next) break;
+      const [id, timer] = next;
+      clock = timer.at;
+      timers.delete(id);
+      timer.callback();
+    }
+    clock = end;
+  }
   const app = { innerHTML: "" };
   const toast = { textContent: "", hidden: true, classList: { toggle() {} } };
   const nav = Array.from({ length: 4 }, (_, i) => ({
     dataset: { nav: ["home", "search", "publish", "mine"][i] },
     setAttribute() {}, removeAttribute() {}
   }));
-  class MockElement { focus() {} setAttribute() {} removeAttribute() {} closest() { return null; } }
+  class MockElement {
+    constructor() { this.attributes = new Map(); this.isConnected = true; }
+    focus() {}
+    setAttribute(name,value) { this.attributes.set(name,value); }
+    getAttribute(name) { return this.attributes.get(name) ?? null; }
+    removeAttribute(name) { this.attributes.delete(name); }
+    closest() { return null; }
+    contains(element) { return element === this; }
+  }
   class MockForm extends MockElement {
     constructor(kind, fields) {
       super();
@@ -37,6 +61,7 @@ function startApp(initialHash = "#/home", store = new Map(), coreOverride = null
     constructor(action, id) {
       super();
       this.dataset = { action, id };
+      this.disabled = false;
     }
     closest() { return this; }
   }
@@ -55,9 +80,12 @@ function startApp(initialHash = "#/home", store = new Map(), coreOverride = null
     set hash(value) { hash = value.startsWith("#") ? value : `#${value}`; }
   };
   const context = {
-    window: { ShiguangCore: coreOverride, addEventListener: (name, fn) => { windowEvents[name] = fn; }, scrollTo() {} },
+    window: { ShiguangCore: coreOverride, addEventListener: (name, fn) => {
+      (windowHandlers[name] || (windowHandlers[name] = [])).push(fn);
+      windowEvents[name] = event => windowHandlers[name].forEach(handler => handler(event));
+    }, scrollTo() {} },
     document: {
-      title: "", querySelector: selector => selector === "#app" ? app : toast,
+      title: "", hidden: false, querySelector: selector => selector === "#app" ? app : toast,
       querySelectorAll: () => nav,
       addEventListener: (name, fn) => { events[name] = fn; }
     },
@@ -65,7 +93,12 @@ function startApp(initialHash = "#/home", store = new Map(), coreOverride = null
     localStorage: { getItem: key => store.get(key) ?? null, setItem: (key, value) => store.set(key, value), removeItem: key => store.delete(key) },
     HTMLFormElement: MockForm, HTMLButtonElement: MockButton, HTMLSelectElement: MockSelect,
     HTMLElement: MockElement, FormData: MockFormData, URLSearchParams,
-    setTimeout: () => 1, clearTimeout() {}, console
+    setTimeout: (callback, delay = 0) => {
+      const id = ++timerId;
+      timers.set(id, { callback, at: clock + delay });
+      return id;
+    },
+    clearTimeout: id => timers.delete(id), console
   };
   Object.assign(context, context.window);
   context.window = context;
@@ -74,7 +107,7 @@ function startApp(initialHash = "#/home", store = new Map(), coreOverride = null
     vm.runInContext(script.source, sandbox, { filename: script.filename });
     if (script.filename === "js/core.js" && coreOverride) sandbox.ShiguangCore = coreOverride;
   }
-  return { app, toast, context, events, windowEvents, store, MockForm, MockButton, MockSelect, rerender: () => windowEvents.hashchange() };
+  return { app, toast, context, events, windowEvents, store, MockForm, MockButton, MockSelect, advanceTime, rerender: () => windowEvents.hashchange() };
 }
 
 function searchResultIds(app) {

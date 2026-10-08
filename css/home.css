@@ -1,10 +1,14 @@
 /* 首页主视觉、插画、统计与使用流程 */
 
+.page-home {
+  --page-background: url("../assets/images/home-campus.jpg");
+}
+
 /* ===== 主视觉 ===== */
 
 .hero {
   min-height: 400px;
-  background: linear-gradient(115deg, #e5efff 0%, #f1f7ff 54%, #ecf7ff 100%);
+  background: linear-gradient(115deg, rgba(229, 239, 255, .4) 0%, rgba(241, 247, 255, .4) 54%, rgba(236, 247, 255, .4) 100%);
   border-radius: 25px;
   overflow: hidden;
   display: grid;

@@ -7,6 +7,89 @@
     const { searchPath } = router;
     const { showToast, showFormErrors } = ui;
 
+    const deleteHoldMs = 1000;
+    let deleteHold = null;
+
+    function cancelDeleteHold() {
+      if (!deleteHold) return;
+      clearTimeout(deleteHold.timer);
+      deleteHold.button.removeAttribute("data-holding");
+      deleteHold = null;
+    }
+
+    function deleteTarget(event) {
+      if (!(event.target instanceof HTMLElement)) return null;
+      const button = event.target.closest('[data-action="delete"]');
+      return button instanceof HTMLButtonElement ? button : null;
+    }
+
+    function beginDeleteHold(button, input) {
+      cancelDeleteHold();
+      const item = store.localRecords.find(record => record.id === button.dataset.id);
+      if (!button.isConnected || button.disabled || item?.owner !== "local" || item.status !== "closed") return;
+      const hold = { button, input, route: location.hash };
+      deleteHold = hold;
+      button.setAttribute("data-holding", "true");
+      hold.timer = setTimeout(() => {
+        if (deleteHold !== hold) return;
+        const active = button.isConnected && location.hash === hold.route;
+        cancelDeleteHold();
+        if (!active) return;
+        try {
+          store.deleteRecord(button.dataset.id);
+          const route = router.currentRoute();
+          if (route.page === "detail" && route.id === button.dataset.id) navigate("/mine");
+          else render();
+          showToast("线索已删除，发布名额和配图编号已释放。");
+        } catch (error) {
+          render();
+          showToast(error.message || "删除失败，记录已保留。", true);
+        }
+      }, deleteHoldMs);
+    }
+
+    document.addEventListener("pointerdown", event => {
+      const button = deleteTarget(event);
+      if (!button || event.button !== 0 || event.isPrimary === false) return;
+      event.preventDefault();
+      button.focus();
+      beginDeleteHold(button, { kind: "pointer", id: event.pointerId, x: event.clientX, y: event.clientY });
+    });
+    function cancelPointerHold(event) {
+      if (deleteHold?.input.kind === "pointer" && deleteHold.input.id === event.pointerId) cancelDeleteHold();
+    }
+    document.addEventListener("pointerup", cancelPointerHold);
+    document.addEventListener("pointercancel", cancelPointerHold);
+    document.addEventListener("pointerout", event => {
+      if (deleteHold?.input.kind === "pointer" && deleteHold.input.id === event.pointerId && !deleteHold.button.contains(event.relatedTarget)) cancelDeleteHold();
+    });
+    document.addEventListener("pointermove", event => {
+      if (deleteHold?.input.kind !== "pointer" || deleteHold.input.id !== event.pointerId) return;
+      const { x, y } = deleteHold.input;
+      if (Math.hypot(event.clientX - x, event.clientY - y) > 10) cancelDeleteHold();
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") { cancelDeleteHold(); return; }
+      const button = deleteTarget(event);
+      if (!button || ![" ", "Enter"].includes(event.key)) return;
+      event.preventDefault();
+      if (event.repeat || deleteHold) return;
+      beginDeleteHold(button, { kind: "keyboard", key: event.key });
+    });
+    document.addEventListener("keyup", event => {
+      if (deleteHold?.input.kind === "keyboard" && deleteHold.input.key === event.key) {
+        event.preventDefault();
+        cancelDeleteHold();
+      }
+    });
+    document.addEventListener("focusout", event => {
+      if (deleteHold && !deleteHold.button.contains(event.relatedTarget)) cancelDeleteHold();
+    });
+    document.addEventListener("visibilitychange", () => { if (document.hidden) cancelDeleteHold(); });
+    document.addEventListener("scroll", cancelDeleteHold, true);
+    window.addEventListener("blur", cancelDeleteHold);
+    window.addEventListener("hashchange", cancelDeleteHold);
+
     function filtersFromForm(form) {
       const data = new FormData(form);
       return {
@@ -38,6 +121,11 @@
         return;
       }
       if (form.dataset.form !== "publish" || form.dataset.submitted === "true") return;
+      if (store.publicationLimitReached) {
+        persistPublishDraft(form);
+        showToast(`当前浏览器最多保留 ${core.MAX_LOCAL_RECORDS} 条个人线索，已结束的记录也计入数量。`, true);
+        return;
+      }
       const data = Object.fromEntries(new FormData(form).entries());
       const errors = core.validateDraft(data);
       if (Object.keys(errors).length) {
@@ -46,9 +134,17 @@
         showToast("请检查标红的必填信息。", true);
         return;
       }
-      const item = core.createRecord(data);
+      let item;
+      try {
+        item = core.createRecord(data);
+        store.addRecord(item);
+      } catch (error) {
+        persistPublishDraft(form);
+        if (error.code === "POST_LIMIT") render();
+        showToast(error.message || "发布失败，请稍后重试。", true);
+        return;
+      }
       form.dataset.submitted = "true";
-      store.addRecord(item);
       const saved = store.saveLocalRecords();
       store.clearPublishDraft();
       navigate(`/success/${encodeURIComponent(item.id)}`);
@@ -73,6 +169,14 @@
     document.addEventListener("click", async event => {
       const button = event.target.closest("[data-action]");
       if (!(button instanceof HTMLButtonElement)) return;
+      if (button.dataset.action === "delete") {
+        event.preventDefault();
+        if (button.isConnected && store.localRecords.some(item => item.id === button.dataset.id && item.status === "closed")) {
+          showToast("请按住删除按钮1秒；提前松手或按 Esc 可取消。");
+        }
+        return;
+      }
+      cancelDeleteHold();
       if (["close", "reopen"].includes(button.dataset.action)) {
         try {
           const reopening = button.dataset.action === "reopen";

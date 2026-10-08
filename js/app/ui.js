@@ -45,14 +45,29 @@
       return `<span class="status-pill status-${status}"><span class="status-dot" aria-hidden="true"></span>${core.STATUS_LABELS[item.type][status]}</span>`;
     }
 
+    function itemVisual(item, detail = false) {
+      const className = detail ? "detail-icon" : "item-icon";
+      if (item.owner === "local" && Number.isInteger(item.imageNumber) && item.imageNumber >= 1 && item.imageNumber <= core.MAX_LOCAL_RECORDS) {
+        const number = item.imageNumber;
+        const filename = String(number).padStart(2, "0");
+        return `<span class="${className} item-image" data-image-number="${number}"><img src="assets/images/post-${filename}.png" alt="配图 ${number}，装饰角色，并非物品实拍" width="64" height="64"><span class="image-number" aria-hidden="true">${number}</span></span>`;
+      }
+      return `<span class="${className}" aria-hidden="true">${icons[item.category] || "✦"}</span>`;
+    }
+
+    function deleteButton(item) {
+      if (item.owner !== "local" || item.status !== "closed") return "";
+      return `<button class="button button-danger hold-delete" type="button" data-action="delete" data-id="${escapeHtml(item.id)}" aria-label="长按1秒删除${escapeHtml(item.title)}" title="按住1秒删除；删除后不可恢复。键盘可按住空格或回车，按 Esc 取消。"><span>长按删除</span></button>`;
+    }
+
     function itemCard(item, returnTo = "/search") {
       const href = `#${detailPath(item.id, returnTo)}`;
       return `<a class="item-card ${item.status === "closed" ? "item-card-closed" : ""}" href="${href}" aria-label="查看${escapeHtml(item.title)}详情">
-        <div class="card-top"><span class="item-icon" aria-hidden="true">${icons[item.category] || "✦"}</span>${typePill(item)}${statusPill(item)}</div>
+        <div class="card-top">${itemVisual(item)}${typePill(item)}${statusPill(item)}</div>
         <h3>${escapeHtml(item.title)}</h3>
         <p class="card-description">${escapeHtml(item.description)}</p>
         <div class="card-meta"><span>⌖ ${escapeHtml(item.place)}</span><span>◷ ${dateLabel(item.date)}</span></div>
-        <div class="card-bottom"><span>${escapeHtml(item.category)}${item.owner === "sample" ? " · 演示信息" : ""}</span><span class="card-arrow" aria-hidden="true">↗</span></div>
+        <div class="card-bottom"><span>${escapeHtml(item.category)}</span><span class="card-arrow" aria-hidden="true">↗</span></div>
       </a>`;
     }
 
@@ -64,8 +79,8 @@
       return `<option value="${escapeHtml(value)}"${value === selected ? " selected" : ""}>${escapeHtml(label)}</option>`;
     }
 
-    function formField(name, label, control, hint = "") {
-      return `<div class="form-field" data-field="${name}"><label for="field-${name}">${label}<span class="required" aria-hidden="true"> *</span></label>${control}${hint ? `<small class="field-hint">${hint}</small>` : ""}<span class="field-error" data-error-for="${name}" aria-live="polite"></span></div>`;
+    function formField(name, label, control, hint = "", required = true) {
+      return `<div class="form-field"><label for="field-${name}">${label}${required ? '<span class="required" aria-hidden="true"> *</span>' : ""}</label>${control}${hint ? `<small class="field-hint">${hint}</small>` : ""}<span id="error-${name}" class="field-error" data-error-for="${name}" aria-live="polite"></span></div>`;
     }
 
     function showFormErrors(form, errors) {
@@ -82,6 +97,6 @@
       if (target && typeof target.focus === "function") target.focus();
     }
 
-    return { icons, escapeHtml, showToast, dateLabel, publishedDateLabel, typePill, statusPill, itemCard, warningHtml, option, formField, showFormErrors };
+    return { escapeHtml, showToast, dateLabel, publishedDateLabel, typePill, statusPill, itemVisual, deleteButton, itemCard, warningHtml, option, formField, showFormErrors };
   };
 })(window);

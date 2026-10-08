@@ -252,3 +252,48 @@
 .button-quiet:hover {
   background: #f7f9fc;
 }
+
+/* ===== 已结束线索的长按删除 ===== */
+
+.button-danger {
+  background: #fff1ef;
+  border: 1px solid #f1c9c3;
+  color: #b14b3e;
+}
+
+.button-danger:hover {
+  background: #ffe4df;
+  border-color: #df9c90;
+}
+
+.hold-delete {
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.hold-delete span {
+  position: relative;
+  z-index: 1;
+}
+
+.hold-delete::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #e6a59866;
+  transform: scaleX(0);
+  transform-origin: left;
+  pointer-events: none;
+}
+
+.hold-delete[data-holding="true"]::before {
+  animation: delete-hold-fill 1s linear forwards;
+}
+
+@keyframes delete-hold-fill {
+  to {
+    transform: scaleX(1);
+  }
+}
