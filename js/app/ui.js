@@ -80,7 +80,7 @@
     }
 
     function formField(name, label, control, hint = "", required = true) {
-      return `<div class="form-field" data-field="${name}"><label for="field-${name}">${label}${required ? '<span class="required" aria-hidden="true"> *</span>' : ""}</label>${control}${hint ? `<small class="field-hint">${hint}</small>` : ""}<span id="error-${name}" class="field-error" data-error-for="${name}" aria-live="polite"></span></div>`;
+      return `<div class="form-field"><label for="field-${name}">${label}${required ? '<span class="required" aria-hidden="true"> *</span>' : ""}</label>${control}${hint ? `<small class="field-hint">${hint}</small>` : ""}<span id="error-${name}" class="field-error" data-error-for="${name}" aria-live="polite"></span></div>`;
     }
 
     function showFormErrors(form, errors) {
@@ -97,6 +97,6 @@
       if (target && typeof target.focus === "function") target.focus();
     }
 
-    return { icons, escapeHtml, showToast, dateLabel, publishedDateLabel, typePill, statusPill, itemVisual, deleteButton, itemCard, warningHtml, option, formField, showFormErrors };
+    return { escapeHtml, showToast, dateLabel, publishedDateLabel, typePill, statusPill, itemVisual, deleteButton, itemCard, warningHtml, option, formField, showFormErrors };
   };
 })(window);

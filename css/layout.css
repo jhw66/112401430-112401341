@@ -70,13 +70,6 @@
   letter-spacing: .08em;
 }
 
-.brand-copy small {
-  margin-top: 4px;
-  font-size: 10px;
-  color: var(--muted);
-  letter-spacing: .07em;
-}
-
 /* ===== 桌面导航 ===== */
 
 .desktop-nav {
@@ -186,8 +179,4 @@
   gap: 20px;
   color: #8793a6;
   font-size: 12px;
-}
-
-.footer-inner strong {
-  color: var(--blue);
 }

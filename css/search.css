@@ -78,13 +78,6 @@
   box-shadow: 0 0 0 3px #2466dd13;
 }
 
-.filter-row input:disabled {
-  background: #f1f4f8;
-  color: var(--muted);
-  cursor: not-allowed;
-  opacity: 1;
-}
-
 .filter-reset {
   margin-left: auto;
   color: var(--blue);
