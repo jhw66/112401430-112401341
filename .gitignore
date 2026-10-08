@@ -2,10 +2,8 @@ node_modules/
 .DS_Store
 Thumbs.db
 *.log
-.evidence/
+evidence/
 QA*
-
-# Local folder responsibility and structure guides
 /css/README.md
 /js/README.md
 /tests/README.md
