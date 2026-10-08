@@ -81,3 +81,16 @@ a {
 .skip-link:focus {
   top: 12px;
 }
+
+/* ===== 无障碍：减少动态效果 ===== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
+
+}
