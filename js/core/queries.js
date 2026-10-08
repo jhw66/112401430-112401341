@@ -13,10 +13,13 @@
 
   function filterRecords(records, filters = {}) {
     const keyword = clean(filters.keyword).toLocaleLowerCase("zh-CN");
+    const place = clean(filters.place).toLocaleLowerCase("zh-CN");
     return records.filter(item => {
       if (filters.type && filters.type !== "all" && item.type !== filters.type) return false;
       if (filters.category && filters.category !== "all" && item.category !== filters.category) return false;
       if (filters.status && filters.status !== "all" && item.status !== filters.status) return false;
+      // 地点先于空关键词判断，保证只填写地点时也能筛选。
+      if (place && !item.place.toLocaleLowerCase("zh-CN").includes(place)) return false;
       if (!keyword) return true;
       const haystack = [item.title, item.category, item.place, item.description].join(" ").toLocaleLowerCase("zh-CN");
       return haystack.includes(keyword);

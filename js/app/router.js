@@ -34,6 +34,7 @@
       const status = params.get("status") || "all";
       return {
         keyword: core.clean(params.get("keyword") || ""),
+        place: core.clean(params.get("place") || ""),
         type: ["all", "lost", "found"].includes(type) ? type : "all",
         category: category === "all" || core.CATEGORIES.includes(category) ? category : "all",
         status: ["all", "open", "closed"].includes(status) ? status : "all"
@@ -43,6 +44,8 @@
     function searchPath(filters) {
       const params = new URLSearchParams();
       if (filters.keyword) params.set("keyword", core.clean(filters.keyword));
+      const place = core.clean(filters.place);
+      if (place) params.set("place", place);
       if (filters.type && filters.type !== "all") params.set("type", filters.type);
       if (filters.category && filters.category !== "all") params.set("category", filters.category);
       if (filters.status && filters.status !== "all") params.set("status", filters.status);
