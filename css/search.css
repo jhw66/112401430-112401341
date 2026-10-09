@@ -1,5 +1,9 @@
 /* 发现信息：搜索面板、筛选与结果 */
 
+.page-search {
+  --page-background: url("../assets/images/search-library.jpg");
+}
+
 /* ===== 搜索面板 ===== */
 
 .search-panel {
@@ -72,13 +76,6 @@
 .filter-row input:focus {
   border-color: var(--blue);
   box-shadow: 0 0 0 3px #2466dd13;
-}
-
-.filter-row input:disabled {
-  background: #f1f4f8;
-  color: var(--muted);
-  cursor: not-allowed;
-  opacity: 1;
 }
 
 .filter-reset {

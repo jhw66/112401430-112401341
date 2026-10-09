@@ -1,5 +1,9 @@
 /* 我的发布：记录列表与管理操作 */
 
+.page-mine {
+  --page-background: url("../assets/images/mine-stationery.jpg");
+}
+
 /* ===== 记录列表 ===== */
 
 .mine-list {
@@ -45,10 +49,19 @@
   margin: 0;
 }
 
+.page-intro .publication-count {
+  color: var(--blue);
+}
+
 /* ===== 管理操作 ===== */
 
 .mine-row-actions {
   display: flex;
   gap: 8px;
   flex: none;
+}
+
+.page-intro .delete-hint {
+  font-size: 12px;
+  color: #95602d;
 }

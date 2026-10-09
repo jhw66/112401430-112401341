@@ -32,3 +32,22 @@ test("损坏草稿不阻止进入发布页，草稿文本按 HTML 转义", () =>
   assert.match(app.innerHTML, /&lt;img/);
   assert.ok(!app.innerHTML.includes("<script>alert(1)</script>"));
 });
+test("邮箱和未完成手机号随草稿恢复，旧草稿缺少手机号也能继续填写", () => {
+  const harness = startApp("#/publish");
+  const fields = { ...publishFields(), contact: "name@", phone: "13800" };
+  harness.events.input({ target: new harness.MockForm("publish", fields) });
+  const reopened = startApp("#/publish", harness.store);
+  assert.match(reopened.app.innerHTML, /name="contact"[^>]*value="name@"/);
+  assert.match(reopened.app.innerHTML, /name="phone"[^>]*value="13800"/);
+  const { phone, ...legacy } = publishFields();
+  const old = startApp("#/publish", new Map([["shiguang_publish_draft_v1", JSON.stringify(legacy)]]));
+  assert.match(old.app.innerHTML, /已恢复上次草稿/);
+  assert.match(old.app.innerHTML, /name="phone"[^>]*value=""/);
+});
+
+test("未完成手机号草稿中的特殊字符会转义，不能注入 HTML", () => {
+  const fields = { ...publishFields(), phone: '"><svg/x>' };
+  const { app } = startApp("#/publish", new Map([["shiguang_publish_draft_v1", JSON.stringify(fields)]]));
+  assert.match(app.innerHTML, /value="&quot;&gt;&lt;svg\/x&gt;"/);
+  assert.ok(!app.innerHTML.includes("<svg/x>"));
+});

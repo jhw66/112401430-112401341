@@ -42,6 +42,8 @@
       case "mine": content = renderMine(); break;
       default: content = renderHome(); break;
     }
+    const page = ["search", "publish", "detail", "success", "mine"].includes(route.page) ? route.page : "home";
+    app.className = `main-content page-${page}`;
     app.innerHTML = content;
     const navPage = route.page === "detail" ? detailReturn(route.params).path.split("?")[0].slice(1) : route.page === "success" ? "publish" : route.page;
     updateNavigation(navPage);

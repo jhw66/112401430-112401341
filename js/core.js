@@ -15,18 +15,18 @@
 })(typeof globalThis !== "undefined" ? globalThis : this, function (modules) {
   "use strict";
 
-  const { CATEGORIES, TYPE_LABELS, STATUS_LABELS } = modules.constants;
+  const { MAX_LOCAL_RECORDS, CATEGORIES, TYPE_LABELS, STATUS_LABELS } = modules.constants;
   const { clean, localDate, validCalendarDate } = modules.utils;
   const { normalizeDraft, validateDraft } = modules.validation;
-  const { createRecord, isRecord, markClosed, markReopened } = modules.records;
+  const { createRecord, isRecord, addLocalRecord, deleteRecord, markClosed, markReopened } = modules.records;
   const { parseLocalRecords, parsePublishDraft } = modules.cache;
   const { filterRecords, getStats } = modules.queries;
   const { SAMPLE_RECORDS } = modules.samples;
 
   return Object.freeze({
-    CATEGORIES, TYPE_LABELS, STATUS_LABELS, SAMPLE_RECORDS,
+    MAX_LOCAL_RECORDS, CATEGORIES, TYPE_LABELS, STATUS_LABELS, SAMPLE_RECORDS,
     clean, localDate, validCalendarDate, normalizeDraft, validateDraft,
-    createRecord, isRecord, parseLocalRecords, parsePublishDraft,
+    createRecord, isRecord, addLocalRecord, deleteRecord, parseLocalRecords, parsePublishDraft,
     filterRecords, markClosed, markReopened, getStats
   });
 });

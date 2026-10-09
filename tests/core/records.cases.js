@@ -64,3 +64,85 @@ test("发布者可撤销结束，不能撤销别人的信息或重复恢复", ()
   assert.throws(() => core.markReopened([localRecord()], "local-1"), { code: "ALREADY_OPEN" });
   assert.throws(() => core.markReopened([], "missing"), { code: "NOT_FOUND" });
 });
+test("新记录保存独立手机号，手机号记录经缓存读取仍可更新状态", () => {
+  const item = core.createRecord({ ...draft(), contact: "", phone: " 13800138000 " }, { id: "phone-only", now: NOW });
+  assert.equal(item.contact, "");
+  assert.equal(item.phone, "13800138000");
+  assert.equal(core.isRecord(item), true);
+  const restored = core.parseLocalRecords(JSON.stringify([item]));
+  assert.equal(restored.invalid, false);
+  assert.deepEqual(core.markClosed(restored.records, item.id)[0], { ...item, imageNumber: 1, status: "closed" });
+  for (const changed of [{ contact: "", phone: "" }, { phone: "abc" }, { contact: "invalid", phone: "13800138000" }]) {
+    assert.equal(core.isRecord({ ...item, ...changed }), false);
+  }
+});
+
+test("个人线索按一至十号配图添加，示例不占名额且结束记录仍计入上限", () => {
+  let records = [...core.SAMPLE_RECORDS];
+  for (let number = 1; number <= core.MAX_LOCAL_RECORDS; number += 1) {
+    const item = { ...localRecord(`number-${number}`), status: number % 2 ? "closed" : "open" };
+    const before = JSON.stringify(records);
+    const next = core.addLocalRecord(records, item);
+    assert.equal(next[0].imageNumber, number);
+    assert.equal(JSON.stringify(records), before);
+    assert.equal(item.imageNumber, undefined);
+    records = next;
+  }
+  assert.equal(records.length, 15);
+  assert.throws(() => core.addLocalRecord(records, localRecord("number-11")), { code: "POST_LIMIT" });
+});
+
+test("结束和撤销不改变配图编号，空缺编号可分配给新线索", () => {
+  const existing = [{ ...localRecord("existing"), imageNumber: 2 }];
+  const added = core.addLocalRecord(existing, localRecord("next"));
+  assert.deepEqual(added.map(item => item.imageNumber), [1, 2]);
+  const closed = core.markClosed(added, "next");
+  const reopened = core.markReopened(closed, "next");
+  assert.deepEqual(reopened.map(item => item.imageNumber), [1, 2]);
+  assert.deepEqual(existing, [{ ...localRecord("existing"), imageNumber: 2 }]);
+});
+
+test("配图编号只允许整数一至十，添加入口拒绝示例和重复记录", () => {
+  const item = localRecord();
+  for (const imageNumber of [0, 11, -1, 1.5, "1", null, [], {}]) {
+    assert.equal(core.isRecord({ ...item, imageNumber }), false);
+  }
+  for (const imageNumber of [1, 10]) assert.equal(core.isRecord({ ...item, imageNumber }), true);
+  assert.throws(() => core.addLocalRecord([], core.SAMPLE_RECORDS[0]), { code: "INVALID_RECORD" });
+  assert.throws(() => core.addLocalRecord([item], item), { code: "DUPLICATE_ID" });
+  const created = core.createRecord({ ...draft(), imageNumber: 10 }, { id: "untrusted-image", now: NOW });
+  assert.equal(core.addLocalRecord([], created)[0].imageNumber, 1);
+});
+
+test("只能删除已结束的个人线索，原数组和剩余记录保持不变", () => {
+  for (const type of ["lost", "found"]) {
+    const removed = { ...localRecord("delete-me"), type, status: "closed", imageNumber: 3 };
+    const remaining = { ...localRecord("keep-me"), imageNumber: 7 };
+    const records = [removed, remaining, ...core.SAMPLE_RECORDS];
+    const before = JSON.stringify(records);
+    const result = core.deleteRecord(records, removed.id);
+    assert.equal(result.length, records.length - 1);
+    assert.equal(result[0], remaining);
+    assert.equal(JSON.stringify(records), before);
+    assert.deepEqual(result.slice(1), [...core.SAMPLE_RECORDS]);
+  }
+});
+
+test("删除入口拒绝进行中、演示、其他发布者及不存在的线索", () => {
+  const open = localRecord("still-open");
+  const closed = { ...open, status: "closed" };
+  assert.throws(() => core.deleteRecord([open], open.id), { code: "NOT_CLOSED" });
+  assert.throws(() => core.deleteRecord([...core.SAMPLE_RECORDS], "sample-keys"), { code: "FORBIDDEN" });
+  assert.throws(() => core.deleteRecord([...core.SAMPLE_RECORDS], "sample-keys", "sample"), { code: "FORBIDDEN" });
+  assert.throws(() => core.deleteRecord([closed], closed.id, "other"), { code: "FORBIDDEN" });
+  assert.throws(() => core.deleteRecord([closed], "missing"), { code: "NOT_FOUND" });
+});
+
+test("删除释放数量和配图编号，重新发布保留其他记录的原编号", () => {
+  const records = Array.from({ length: 10 }, (_, index) => ({ ...localRecord(`slot-${index+1}`), status: "closed", imageNumber: index+1 }));
+  const remaining = core.deleteRecord(records, "slot-4");
+  const next = core.addLocalRecord(remaining, localRecord("replacement"));
+  assert.equal(next.length, 10);
+  assert.equal(next[0].imageNumber, 4);
+  assert.deepEqual(next.slice(1).map(item => item.imageNumber), [1,2,3,5,6,7,8,9,10]);
+});

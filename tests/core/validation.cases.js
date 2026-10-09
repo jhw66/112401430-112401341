@@ -46,3 +46,35 @@ test("联系邮箱需有有效格式，长度不能超过 100 个字符", () => 
     assert.ok(core.validateDraft({ ...draft(), contact }, "2026-09-29").contact, contact);
   }
 });
+test("只填写手机号也可发布，邮箱允许留空", () => {
+  assert.deepEqual(core.validateDraft({ ...draft(), contact: "", phone: "13800138000" }, "2026-09-29"), {});
+});
+
+test("邮箱和手机号可同时填写，预处理清理两端空白", () => {
+  const input = { ...draft(), phone: " 13800138000 " };
+  assert.deepEqual(core.validateDraft(input, "2026-09-29"), {});
+  const normalized = core.normalizeDraft(input);
+  assert.equal(normalized.contact, "finder@example.edu");
+  assert.equal(normalized.phone, "13800138000");
+});
+
+test("两种联系方式均为空或只有空白时不能发布", () => {
+  for (const contacts of [{ contact: "", phone: "" }, { contact: "   ", phone: "\t" }]) {
+    assert.match(core.validateDraft({ ...draft(), ...contacts }, "2026-09-29").contact, /至少填写/);
+  }
+});
+
+test("手机号拒绝长度、前缀、非数字及非字符串异常", () => {
+  for (const phone of ["1380013800", "138001380000", "12800138000", "13800138abc", "+8613800138000",
+    "138 00138000", ["13800138000"], 13800138000, null]) {
+    assert.ok(core.validateDraft({ ...draft(), phone }, "2026-09-29").phone, String(phone));
+  }
+});
+
+test("填写一种有效联系方式不能绕过另一项的格式错误", () => {
+  assert.ok(core.validateDraft({ ...draft(), contact: "name@", phone: "13800138000" }, "2026-09-29").contact);
+  assert.ok(core.validateDraft({ ...draft(), phone: "123" }, "2026-09-29").phone);
+  for (const contact of [["name@example.edu"], { toString: () => "name@example.edu" }, null]) {
+    assert.ok(core.validateDraft({ ...draft(), contact, phone: "13800138000" }, "2026-09-29").contact);
+  }
+});
